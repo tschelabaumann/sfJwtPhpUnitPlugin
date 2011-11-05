@@ -34,6 +34,3 @@ if( extension_loaded('xdebug') )
 {
   xdebug_disable();
 }
-
-/** Do not include this file in stack traces if/when tests fail. */
-PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(__FILE__, 'PHPUNIT');
