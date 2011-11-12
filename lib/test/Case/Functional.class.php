@@ -44,6 +44,12 @@ abstract class Test_Case_Functional extends Test_Case
   final protected function _init(  )
   {
     $this->_browser = new Test_Browser();
+
+    /* PHPUnit 3.6 does its own output buffering, which conflicts with Symfony's
+     *  test browser.  As a workaround, add an extra layer of output buffering
+     *  before running the test.
+     */
+    ob_start();
   }
 
   /** Shortcut for assertEqual($this->_browser->getStatusCode(), $code).

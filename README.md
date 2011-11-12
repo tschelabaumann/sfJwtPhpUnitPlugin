@@ -29,6 +29,8 @@ JPUP was developed specifically for projects using Symfony 1.4 and Doctrine.
 
 Propel is not currently supported.
 
+JPUP requires PHPUnit 3.6.  PHPUnit 3.5 and earlier versions are not supported.
+
 ## Installation
 See INSTALL.md.
 

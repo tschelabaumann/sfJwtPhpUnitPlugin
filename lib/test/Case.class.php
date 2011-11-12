@@ -38,7 +38,9 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       '*** Halting execution to prevent corrupting production data! ***',
 
     DEFAULT_APPLICATION = 'frontend',
-    DEFAULT_ENVIRONMENT = 'test';
+    DEFAULT_ENVIRONMENT = 'test',
+
+    REQUIRED_PHPUNIT_VERSION = '3.6.0';
 
   static private
     $_dbRebuilt,
@@ -85,6 +87,23 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $old = self::$_defaultApplication;
     self::$_defaultApplication = (string) $application;
     return $old;
+  }
+
+  /** Init the class instance.
+   *
+   * @param string  $name
+   * @param array   $data
+   * @param string  $dataName
+   */
+  public function __construct(
+          $name     = null,
+    array $data     = array(),
+          $dataName = ''
+  )
+  {
+    $this->_checkPHPUnitVersion();
+
+    parent::__construct($name, $data, $dataName);
   }
 
   /** (Global) Init test environment.
@@ -410,6 +429,23 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
 
       self::$_uploadsDirCheck = true;
+    }
+  }
+
+  /** Checks to make sure we have the correct version of PHPUnit installed.
+   *
+   * @return void
+   */
+  private function _checkPHPUnitVersion(  )
+  {
+    $current = PHPUnit_Runner_Version::id();
+    if( ! version_compare($current, self::REQUIRED_PHPUNIT_VERSION, '>=') )
+    {
+      self::_halt(sprintf(
+        'JPUP is not compatible with PHPUnit %s; please upgrade to %s or later.',
+          $current,
+          self::REQUIRED_PHPUNIT_VERSION
+      ));
     }
   }
 
