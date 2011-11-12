@@ -27,7 +27,7 @@
  *  protected properties/methods of the wrapped instance; the wrapper can only
  *  add or overwrite functionality.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test

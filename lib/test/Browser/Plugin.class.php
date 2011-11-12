@@ -23,7 +23,7 @@
 
 /** Used to extend the functionality of Test_Browser.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser

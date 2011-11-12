@@ -27,7 +27,7 @@
  * Note:  Designed to work with Symfony 1.4.  Might not work properly with later
  *  versions of Symfony.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test

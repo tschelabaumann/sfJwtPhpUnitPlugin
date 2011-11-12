@@ -23,7 +23,7 @@
 
 /** Base functionality for tasks to run PHPUnit tests.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task.phpunit.base

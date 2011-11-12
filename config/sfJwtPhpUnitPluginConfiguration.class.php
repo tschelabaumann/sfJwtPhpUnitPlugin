@@ -24,8 +24,8 @@
 
 /** Initialization for the sfJwtPhpUnitPlugin plugin.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
- * 
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
+ *
  * @package jwt
  * @subpackage plugin.config
  */
