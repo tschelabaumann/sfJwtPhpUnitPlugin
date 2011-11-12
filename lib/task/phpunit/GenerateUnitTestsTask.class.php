@@ -57,12 +57,12 @@ END;
         'If set, an empty test case will be generated (no skeleton tests).'
       ),
 
-			new sfCommandOption(
-				'include-inherited-methods',
-				null,
-				sfCommandOption::PARAMETER_NONE,
-				'If set, test skeletons will be generated for methods inherited from parent classes.'
-			)
+      new sfCommandOption(
+        'include-inherited-methods',
+        null,
+        sfCommandOption::PARAMETER_NONE,
+        'If set, test skeletons will be generated for methods inherited from parent classes.'
+      )
     ));
   }
 
@@ -71,7 +71,7 @@ END;
     $params = $this->_consolidateInput($args, $opts, array(
       'class'     								=> null,
       'no-tests'  								=> null,
-			'include-inherited-methods'	=> null,
+      'include-inherited-methods'	=> null,
       'token'     								=> array(),
       'verbose'   								=> null
     ), true);
@@ -137,10 +137,10 @@ END;
       'AUTHOR'      => $this->_guessAuthorNames($ref, false),
 
       'TESTS'       => (
-				$params['no-tests']
-					? ''
-					: $this->_generateTests($ref, $params['include-inherited-methods'])
-			)
+        $params['no-tests']
+          ? ''
+          : $this->_generateTests($ref, $params['include-inherited-methods'])
+      )
     );
 
     if( ! empty($customTokens) )
@@ -196,8 +196,8 @@ END;
   /** Generates skeleton tests for a class.
    *
    * @param ReflectionClass $ref
-	 * @param bool						$inherited If true, inherited methods from parent
-	 * 	classes will be included when generating test skeletons.
+   * @param bool						$inherited If true, inherited methods from parent
+   * 	classes will be included when generating test skeletons.
    *
    * @return string(php) Intended for use in token replacement.
    */
@@ -214,18 +214,18 @@ END;
 
     $str = '';
 
-		/* Only consider public methods to be part of the class' API. */
-		$methods 	= $ref->getMethods(ReflectionMethod::IS_PUBLIC);
-		$class 		= $ref->getName();
+    /* Only consider public methods to be part of the class' API. */
+    $methods 	= $ref->getMethods(ReflectionMethod::IS_PUBLIC);
+    $class 		= $ref->getName();
 
     /* @var $meth ReflectionMethod */
     foreach( $methods as $meth )
     {
-			/* Do not count inherited methods as part of the class' API. */
-			if( ! ($inherited or ($meth->getDeclaringClass()->getName() == $class)) )
-			{
-				continue;
-			}
+      /* Do not count inherited methods as part of the class' API. */
+      if( ! ($inherited or ($meth->getDeclaringClass()->getName() == $class)) )
+      {
+        continue;
+      }
 
       $name = $meth->getName();
 
