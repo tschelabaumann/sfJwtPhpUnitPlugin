@@ -1,3 +1,21 @@
+# 1.0.5
+
+## Issues
+
+- Resolved [#17]: Make generating skeleton tests for inherited methods an option.
+
+## Major Changes
+
+- Added support for PHPUnit 3.6, dropped support for earlier versions.
+- Introduced `Test_Browser_Plugin_Logger`.
+- Fixed issues when trying to run tests for multiple applications in the same test run.
+
+## Minor Changes
+
+- If `--trace` option is provided, display full stack traces in test failure/error reports.
+- Log a message to `sfLogger` when the user is logged in via `Test_Browser->signin()`.
+- Added changelog to package.xml template.
+
 # 1.0.4
 
 ## Issues
