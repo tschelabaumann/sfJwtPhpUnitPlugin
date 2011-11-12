@@ -38,12 +38,14 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       '*** Halting execution to prevent corrupting production data! ***',
 
     DEFAULT_APPLICATION = 'frontend',
-    DEFAULT_ENVIRONMENT = 'test';
+    DEFAULT_ENVIRONMENT = 'test',
+
+    REQUIRED_PHPUNIT_VERSION = '3.6.0';
 
   static private
-    $_appConfigs = array(),
     $_dbRebuilt,
     $_dbNameCheck,
+    $_dbFlushTree,
     $_uploadsDirCheck,
     $_defaultApplication,
     $_configs;
@@ -87,6 +89,23 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     return $old;
   }
 
+  /** Init the class instance.
+   *
+   * @param string  $name
+   * @param array   $data
+   * @param string  $dataName
+   */
+  public function __construct(
+          $name     = null,
+    array $data     = array(),
+          $dataName = ''
+  )
+  {
+    $this->_checkPHPUnitVersion();
+
+    parent::__construct($name, $data, $dataName);
+  }
+
   /** (Global) Init test environment.
    *
    * Note that test case subclasses should use _setUp().
@@ -95,6 +114,8 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   final public function setUp(  )
   {
+    $this->_initContext();
+
     $this->_fixtureLoader = new Test_FixtureLoader();
 
     $this->flushDatabase();
@@ -153,12 +174,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   protected function flushDatabase( $rebuild = false )
   {
-    $this->getAppConfig();
     if( sfConfig::get('sf_use_database') )
     {
-      $this->verifyTestDbConnection();
+      $this->verifyTestDatabaseConnection();
 
-      $db = $this->getDbConnection();
+      $db = $this->getDatabaseConnection();
 
       /* The first time we run a test case, drop and rebuild the database.
        *
@@ -166,7 +186,13 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
        */
       if( empty(self::$_dbRebuilt) or $rebuild )
       {
-        $db->dropDatabase();
+        /* Don't try to drop the database unless it exists. */
+        $name = $this->getDatabaseName();
+        if( $name and $db->import->databaseExists($name) )
+        {
+          $db->dropDatabase();
+        }
+
         $db->createDatabase();
 
         Doctrine_Core::loadModels(
@@ -179,14 +205,30 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
       else
       {
-        $db->execute('SET foreign_key_checks = 0');
-
-        foreach( Doctrine_Core::getLoadedModels() as $table )
+        /* Determine the order we need to load models. */
+        if( ! isset(self::$_dbFlushTree) )
         {
-          Doctrine_Query::create()->delete($table)->execute();
+          $models = $db->unitOfWork->buildFlushTree(
+            Doctrine_Core::getLoadedModels()
+          );
+          self::$_dbFlushTree = array_reverse($models);
         }
 
-        $db->execute('SET foreign_key_checks = 1');
+        /* Delete records, paying special attention to SoftDelete. */
+        foreach( self::$_dbFlushTree as $model )
+        {
+          $table = Doctrine_Core::getTable($model);
+
+          if( $table->hasTemplate('SoftDelete') )
+          {
+            foreach( $table->createQuery()->execute() as $record )
+            {
+              $record->hardDelete();
+            }
+          }
+
+          $table->createQuery()->delete()->execute();
+        }
       }
 
       $this->_fixtureLoader
@@ -238,60 +280,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     return $this;
   }
 
-  /** Accessor for $_appConfigs.
-   *
-   * @return sfApplicationConfiguration
-   */
-  protected function getAppConfig(  )
-  {
-    if( empty($this->_application) )
-    {
-      $this->_application = self::getDefaultApplicationName();
-    }
-
-    if( ! isset(self::$_appConfigs[$this->_application]) )
-    {
-      if( sfContext::hasInstance($this->_application) )
-      {
-        self::$_appConfigs[$this->_application] =
-          sfContext::getInstance($this->_application)
-            ->getConfiguration();
-      }
-      else
-      {
-        $projectDir = sfConfig::get('sf_root_dir');
-        if( $projectDir == '' )
-        {
-          /* 1 %SF_ROOT_DIR%
-           * 2   plugins/
-           * 3     sfJwtPhpUnitPlugin/
-           * 4       lib/
-           * *         test/
-           *
-           * * = dirname(__FILE__)
-           */
-          $projectDir = realpath(dirname(__FILE__) . '/../../../..');
-        }
-
-        self::$_appConfigs[$this->_application] =
-          ProjectConfiguration::getApplicationConfiguration(
-            $this->_application,
-            self::DEFAULT_ENVIRONMENT,
-            true,
-            $projectDir
-          );
-        sfContext::createInstance(self::$_appConfigs[$this->_application]);
-      }
-    }
-
-    return self::$_appConfigs[$this->_application];
-  }
-
   /** Gets the Doctrine connection, initializing it if necessary.
    *
    * @return Doctrine_Connection
    */
-  protected function getDbConnection(  )
+  protected function getDatabaseConnection(  )
   {
     try
     {
@@ -304,6 +297,27 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
   }
 
+  /** Returns the name of the Doctrine database.
+   *
+   * @return string(dbname)
+   */
+  protected function getDatabaseName(  )
+  {
+    $db = $this->getDatabaseConnection();
+
+    /* Why oh why does Doctrine_Connection not do this for us? */
+    if( ! $dsn = $db->getOption('dsn') )
+    {
+      throw new RuntimeException(sprintf(
+        'Doctrine connection "%s" does not have a DSN!',
+          $db->getName()
+      ));
+    }
+
+    $info = $db->getManager()->parsePdoDsn($dsn);
+    return (isset($info['dbname']) ? $info['dbname'] : null);
+  }
+
   /** Verifies that we are not connected to the production database.
    *
    * @param bool $force
@@ -311,7 +325,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    * @return void Triggers an error if our database connection is unsafe for
    *  testing.
    */
-  protected function verifyTestDbConnection( $force = false )
+  protected function verifyTestDatabaseConnection( $force = false )
   {
     if( ! self::$_dbNameCheck or $force )
     {
@@ -329,8 +343,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
       $test = $config['test']['doctrine']['param']['dsn'];
 
-      $this->_assertDatabaseIsSupported($test);
-
       $prod =
         isset($config['prod']['doctrine']['param']['dsn'])
           ? $config['prod']['doctrine']['param']['dsn']
@@ -343,7 +355,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
 
       /* Check to see that the active connection is using the correct DSN. */
-      if( $this->getDbConnection()->getOption('dsn') != $test )
+      if( $this->getDatabaseConnection()->getOption('dsn') != $test )
       {
         self::_halt('Doctrine connection is not using test DSN!');
       }
@@ -420,6 +432,48 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
   }
 
+  /** Checks to make sure we have the correct version of PHPUnit installed.
+   *
+   * @return void
+   */
+  private function _checkPHPUnitVersion(  )
+  {
+    $current = PHPUnit_Runner_Version::id();
+    if( ! version_compare($current, self::REQUIRED_PHPUNIT_VERSION, '>=') )
+    {
+      self::_halt(sprintf(
+        'JPUP is not compatible with PHPUnit %s; please upgrade to %s or later.',
+          $current,
+          self::REQUIRED_PHPUNIT_VERSION
+      ));
+    }
+  }
+
+  /** Initialize the application context.
+   *
+   * @return void
+   */
+  private function _initContext(  )
+  {
+    if( empty($this->_application) )
+    {
+      $this->_application = self::getDefaultApplicationName();
+    }
+
+    if( ! sfContext::hasInstance() )
+    {
+      sfContext::createInstance(
+        ProjectConfiguration::getApplicationConfiguration(
+          $this->_application,
+          'test',
+          true
+        )
+      );
+    }
+
+    sfContext::switchTo($this->_application);
+  }
+
   /** Check to make sure we are using the "test" environment.
    *
    * Throws an error if the check fails to avoid executing test code in a
@@ -429,10 +483,12 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   private function _assertTestEnvironment(  )
   {
-    $this->getAppConfig();
     if( sfConfig::get('sf_environment') != 'test' )
     {
-      self::_halt('Please verify that getAppConfig() is specifying the "test" environment.');
+      self::_halt(sprintf(
+        'JPUP is trying to run in the %s environment instead of test!',
+          sfConfig::get('sf_environment')
+      ));
     }
 
     if( sfConfig::get('sf_error_reporting') !== (E_ALL | E_STRICT) )
@@ -441,36 +497,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         (E_ALL | E_STRICT),
         'E_ALL | E_STRICT' // Split out for easy editing if necessary.
       );
-    }
-  }
-
-  /** Check to make sure that the database we're using is supported.
-   *
-   * @param string(dsn) $dsn
-   *
-   * @return void
-   */
-  private function _assertDatabaseIsSupported( $dsn )
-  {
-    if( preg_match('/^([^:]+):/', $dsn, $matches) )
-    {
-      /* List is hard-coded because expanding it would require code changes. */
-      $supported = array(
-        'mysql'
-      );
-
-      if( ! in_array(strtolower($matches[1]), $supported) )
-      {
-        self::_halt(sprintf(
-          '%s database driver in databases.yml is not (yet) supported; please specify one of: %s',
-            $matches[1],
-            implode(', ', $supported)
-        ));
-      }
-    }
-    else
-    {
-      self::_halt('Unable to determine the database driver in databases.yml.');
     }
   }
 

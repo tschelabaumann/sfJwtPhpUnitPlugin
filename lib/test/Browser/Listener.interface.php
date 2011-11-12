@@ -21,16 +21,24 @@
  * THE SOFTWARE.
  */
 
-/** Init environment for working with PHPUnit tests.
- *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+/** Describes the interface of a class that injects mixins into the browser.
  *
  * @package sfJwtPhpUnitPlugin
- * @subpackage test.bootstrap
+ * @subpackage lib.test.browser
  */
-
-/** Disable conflicting extensions. */
-if( extension_loaded('xdebug') )
+interface Test_Browser_Listener
 {
-  xdebug_disable();
+  /** Returns the events that this listener should be registered for.
+   *
+   * @return array
+   */
+  public function getEventNames(  );
+
+  /** Invokes the listener.
+   *
+   * @param sfEvent $event
+   *
+   * @return void
+   */
+  public function invoke( sfEvent $event );
 }

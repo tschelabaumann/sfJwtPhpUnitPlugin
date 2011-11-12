@@ -112,7 +112,11 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     $this->_executeGlobalBootstrap();
     $this->_executeProjectBootstrap();
 
-    $this->_populateTraceBlacklist();
+    if( empty($options['trace']) )
+    {
+      $this->_populateTraceBlacklist();
+    }
+    unset($options['trace']);
 
     $this->_doRunTests($options);
   }
@@ -291,6 +295,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       'filter'      => null,
       'groups'      => null,
       'plugin'      => null,
+      'trace'				=> null,
       'verbose'     => false
     );
 
@@ -312,6 +317,12 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     if( isset($params['groups']) )
     {
       $params['groups'] = preg_split('/\s*,\s*/', (string) $params['groups']);
+    }
+
+    /* Special case:  filter should not be empty. */
+    if( $params['filter'] === '' )
+    {
+      $params['filter'] = null;
     }
 
     return $params;

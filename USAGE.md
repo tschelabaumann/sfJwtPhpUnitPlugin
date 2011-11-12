@@ -1,25 +1,25 @@
-# About This Guide #
+# About This Guide
 This guide documents the major functionality that JPUP provides.  It can be
   considered a user reference guide with cookbook elements.
 
 This guide does not contain API documentation, nor does it cover topics that
   might be of interest to developers who wish to make changes to JPUP itself.
 
-## Prerequisites ##
+## Prerequisites
 This guide assumes that you are already familiar with PHPUnit and unit-testing
   PHP applications.
 
 For an introduction to unit testing and how to write PHPUnit test cases, see
   [the PHPUnit manual](http://www.phpunit.de/manual/current/en/).
 
-# Where to Put Test Files #
+# Where to Put Test Files
 The organization of PHPUnit tests is very similar to the way Symfony tests are
   laid out.
 
 All tests should be stored in the `test` directory under the project root
   directory (matches the value of `sfConfig::get('sf_test_dir')`).
 
-## Unit Tests ##
+## Unit Tests
 Unit tests should be stored under `sf_test_dir/unit`.  For best results, create
   subdirectories and name your test case files to match the corresponding
   library files that they are testing.
@@ -31,7 +31,7 @@ For example, the unit tests for `lib/model/Profile.class.php` should be stored
   convention, you can leverage readline's autocomplete feature when you are
   running tests via PHPUnit Symfony tasks.
 
-## Functional Tests ##
+## Functional Tests
 Functional tests should be stored under `sf_test_dir/functional`.  Use
   subdirectories to group functional tests by application and module.
 
@@ -48,8 +48,8 @@ Note that this differs from the way Symfony's built-in test framework organizes
   we just found that it's more efficient for us to locate and run tests when they
   are organized by module *and* action.
 
-# Writing Tests #
-## Writing Unit Tests ##
+# Writing Tests
+## Writing Unit Tests
 Writing a unit test for JPUP is very similar to writing [test cases for
   vanilla PHPUnit](http://www.phpunit.de/manual/current/en/writing-tests-for-phpunit.html),
   but there are a few differences to keep in mind:
@@ -112,7 +112,7 @@ class WidgetServiceTest extends Test_Case_Unit
 }
 </pre>
 
-### Generating Unit Tests Automatically ###
+### Generating Unit Tests Automatically
 JPUP comes packaged with a Symfony task named `phpunit:generate-unit` to build
   unit tests for you automatically.
 
@@ -230,7 +230,7 @@ Note that JPUP automatically populates the `@package`, `@subpackage` and
 ./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
 </pre>
 
-## Writing Functional Tests ##
+## Writing Functional Tests
 Functional tests are very similar to unit tests as described above, but you also
   have access to `$this->_browser` which is an instance of a modified version of
   the `sfBrowser` class:  `Test_Browser`.
@@ -309,7 +309,7 @@ class frontend_account_registerTest extends Test_Case_Functional
 }
 </pre>
 
-### Generating Functional Tests Automatically ###
+### Generating Functional Tests Automatically
 JPUP comes packaged with a Symfony task named `phpunit:generate-functional` to
   build functional tests for you automatically.
 
@@ -423,7 +423,54 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
 ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
 </pre>
 
-### Interacting with the Symfony Application Context ###
+### Signing In
+Testing applications that require login is a tricky proposition.  It's easy
+  enough to sign a user in, but every time the browser makes a request, it
+  destroys and rebuilds the application context, which logs the user back out!
+
+`Test_Browser` provides a `signin()` method to solve this problem.  Simply pass
+  in a username or email address, and the browser will make sure the user is
+  logged in during the next and subsequent requests:
+
+<pre>
+# sf_test_dir/functional/frontend/admin/dashboard.php
+
+&lt;?php
+class frontend_admin_dashboardTest extends Test_Case_Functional
+{
+  protected
+    $_url = '/admin/dashboard';
+
+  public function testMustBeLoggedIn(  )
+  {
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(401);
+  }
+
+  public function testUserCanAccessIfSignedIn(  )
+  {
+    $this->loadFixture('admin_user.php');
+    $this->_browser->signin('administrator');
+
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(200);
+  }
+
+  public function testSigninOnlyLastsForTheDurationOfTheTest(  )
+  {
+    $this->_browser->get($this->_url);
+    $this->assertStatusCode(401);
+  }
+}
+</pre>
+
+Note from the last test in the example above that the user will only remain
+  signed in for the duration of the test in which the call to `signin()` was
+  made.  If you want the user to be logged in during another test, you will need
+  to call `signin()` again, or move that code into your test case's `_setUp()`
+  method.
+
+### Interacting with the Symfony Application Context
 While building JPUP, we found that there were a number of features that
   the `sfTestFunctional` classes afforded that are extraordinarily useful for
   testing but are not accessible to `sfBrowser`.
@@ -450,6 +497,11 @@ Here is the full list of plugins that come with JPUP:
   - Usage:  `$this->_browser->getForm()`
   - Makes accessible the `sfForm` instance bound to the Symfony action if
     applicable.
+
+- Logger
+  - Usage:  `$this->_browser->getLogger()`
+  - Injects an `sfVarLogger` into the context so that log messages can be
+    inspected.
 
 - Mailer
   - Usage:  `$this->_browser->getMailer()`
@@ -482,7 +534,7 @@ For complete API documentation of browser plugins, see the PHPDoc-generated
 
 Here are some examples of use cases where `Test_Browser` plugins come in handy:
 
-#### Testing Service Calls ####
+#### Testing Service Calls
 A number of applications expose services that return serialized or JSON-encoded
   values instead of HTML content.  Manually parsing the content these requests
   would quickly become tedious; fortunately, the Content plugin provides methods
@@ -532,7 +584,7 @@ class frontend_do_likeTest extends Test_Case_Functional
   `Test_Browser_Plugin_Content`.  If you want the raw text from the response,
   cast it as a string or invoke its `__toString()` method.
 
-#### Testing Form Submissions ####
+#### Testing Form Submissions
 To access a submitted form, use the Form plugin:
 
 <pre>
@@ -580,7 +632,7 @@ class frontend_main_reportissueTest extends Test_Case_Functional
 * If a form is not added to the action's variable holder (e.g., by assigning it
   to `$this->form` in the action), it will not be accessible to JPUP.
 
-#### Testing Emails ####
+#### Testing Emails
 To interact with Symfony's built in mailer, use the Mailer plugin:
 
 <pre>
@@ -641,7 +693,7 @@ class frontend_main_reportissueTest extends Test_Case_Functional
   If you are using your own mailer, you will need to write your own interface
   for interacting with it for testing.
 
-#### Testing Redirects ####
+#### Testing Redirects
 The Request and Response plugins provide access to forwarding and redirecting
   information, respectively.
 
@@ -688,7 +740,7 @@ class frontend_contactus_reportissueTest extends Test_Case_Functional
 
   This only applies to redirects; forwards are followed automatically.
 
-#### Troubleshooting 500 Errors ####
+#### Troubleshooting 500 Errors
 When applications generate 500 errors, Symfony will forward the request to a
   generic error page, which makes troubleshooting these problems in functional
   tests particularly frustrating.
@@ -735,10 +787,90 @@ class frontend_main_reportissueTest extends Test_Case_Functional
   will probably end up using this plugin to debug your application rather than
   as part of a test or assertion.
 
-# Database Interaction #
-Note that JPUP is currently only compatible with Doctrine/MySQL.
+#### Inspecting Log Messages
+Occasionally, it can be useful to look at the log messages generated by a
+  particular request.  By default, Symfony will log messages to
+  `sf_log_dir/appname_test.log`, but this file tends to get rather large, and
+  it can be cumbersome to scroll through it to identify the failed request.
 
-## Configuration ##
+JPUP provides an alternative interface for interacting with Symfony's logger.
+  The Logger plugin will inject an `sfVarLogger` instance into the context so
+  that you can inspect log messages in your test.
+
+To inject the logger, you will need to first call
+  `$this->_browser->usePlugin('logger')`.
+
+Once the logger has been injected, you can inspect the log messages generated by
+  the most recent request like this:
+
+<pre>
+# sf_test_dir/functional/frontend/contactus/reportissue.php
+
+&lt;?php
+class frontend_main_reportissueTest extends Test_Case_Functional
+{
+  public function testSuccess(  )
+  {
+    /* Inject the logger so that we can inspect log messages. */
+    $this->_browser->usePlugin('logger');
+
+    $this->_browser
+      ->get('/contactus/reportissue')
+      ->click('Submit', array(
+          'issue' => array(
+            'firstname'   => 'Functional',
+            'lastname'    => 'Tester',
+            'email'       => $email,
+            'description' => 'This is a test form submission.'
+          )
+        ));
+
+    /* For some reason, the request is generating a 404.  Maybe the application
+     *  logs will hold some clues.
+     */
+    echo $this->_browser->getLogger(), PHP_EOL;
+
+    /* This assertion will still fail, but not before we get to see what's going
+     *  on.
+     */
+    $this->assertStatusCode(200);
+  }
+}
+</pre>
+
+Note that the logger will be injected after the context loads its factories,
+  so there will not be any log messages from factory initialization (such as
+  connecting routes).
+
+You can work around this by instructing Symfony to load an `sfVarLogger` in
+  your `factories.yml` file.  The Logger plugin will first check to see if an
+  `sfVarLogger` has been added to the context before injecting its own.
+
+<pre>
+# sf_apps_dir/frontend/config/factories.yml:
+
+test:
+  logger:
+    class:    sfAggregateLogger
+    param:
+      level:    debug
+      loggers:
+        sf_var_logger:
+          class:  sfVarLogger
+          param:
+            level:  debug
+</pre>
+
+With the above configuration in place in your application's `factories.yml`
+  file, you will be able to inspect all application log messages in your test
+  case, including any generated while initializing the context's factory
+  objects (but be aware that this comes at a cost; the `sfVarLogger` will be
+  created and populated regardless of whether you use it!).
+
+# Database Interaction
+Note that JPUP is currently only compatible with Doctrine.
+
+## Configuration
 Before running any tests, JPUP first verifies to make sure that a distinct
   "test" DSN has been specified in databases.yml and that the active Doctrine
   connection is using the correct DSN.
@@ -764,8 +896,8 @@ test:
 
 Replace the values in brackets above with ones that correspond to your database setup.
 
-* Make sure that you also create the test database in MySQL and assign user
-  privileges if necessary.
+* Make sure that you also create the test database and assign user privileges if
+    necessary.
 
 * If your application does not use a database, you can disable these checks
   (and all database connectivity) by setting `use_database` to `false` in
@@ -780,7 +912,7 @@ all:
     use_database:           false
 </pre>
 
-## Pre-Test Checks ##
+## Pre-Test Checks
 Before running each test, JPUP automatically flushes the database:
 
 * Before the first test runs, JPUP completely destroys and rebuilds the
@@ -811,9 +943,9 @@ Once the data has been flushed, JPUP loads global test data fixtures, if any
 Note that JPUP flushes the database **before** each test, not **after** it.
   This is by design; if you want to inspect the state of the database after a
   failed test, use `exit()` to halt test execution before the failing assertion,
-  then use your favorite MySQL client to examine the test database.
+  then use your favorite DB client application to examine the test database.
 
-## Loading Fixtures ##
+## Loading Fixtures
 For efficiency, only global test fixtures are loaded by default (more on this
   in a bit).
 
@@ -833,7 +965,7 @@ class HelloTest extends Test_Case_Unit
 }
 </pre>
 
-### Caveats ###
+### Caveats
 * The database gets flushed in between tests, so you will need to make sure your
   test case loads the appropriate fixtures before every test that uses them.
 
@@ -851,7 +983,7 @@ class HelloTest extends Test_Case_Unit
   test.  There is a way to force it to load a fixture multiple times (but be
   wary of infinite loops!).  See the API documentation for more information.
 
-### Global Fixtures ###
+### Global Fixtures
 As mentioned above, there is a category of fixture that does get loaded
   automatically before each test, known as global fixtures.
 
@@ -862,10 +994,10 @@ Global fixtures are loaded using the same mechanism as other fixtures, so they
   must be located in `sf_test_dir/fixtures` and have the same limitations and
   features as any other fixture.
 
-### Fixture Types ###
+### Fixture Types
 JPUP supports loading two different fixture types:  YAML and PHP.
 
-#### YAML ####
+#### YAML
 JPUP can load YAML fixture files similarly to the way Symfony's
   `doctrine:data-load` task operates.  To load a YAML fixture file, provide the
   name of the file to `$this->loadFixture()`:
@@ -920,7 +1052,7 @@ If you need to execute a large amount of PHP code, or if you need to set up
   inter-fixture relationships, you might find it more effective to use a PHP
   fixture file instead.
 
-#### PHP ####
+#### PHP
 Load a PHP fixture file identically to the way you would load a YAML fixture
   file, except that the filename will have a '.php' extension rather than
   '.yml':
@@ -944,7 +1076,7 @@ A PHP fixture file can contain any PHP code.
   simple and focused.  The last thing you want is to have to write test cases
   for your data fixtures!
 
-##### Loading Other Fixtures #####
+##### Loading Other Fixtures
 You can load other fixtures from a PHP fixture file by calling
   `$this->loadFixture()` just like you would from a test case:
 
@@ -956,7 +1088,7 @@ $this->loadFixture('sites.yml');
 $this->loadFixture('categories.php');
 </pre>
 
-##### Sharing Variables #####
+##### Sharing Variables
 PHP fixture files can share variables between one other.  To make a variable
   accessible to other fixture files, assign it as a property of `$this` in the
   fixture file:
@@ -1001,7 +1133,7 @@ If you write a fixture that relies on other fixtures being loaded, it is
     test by default, so when in doubt it is always better to include too many
     calls to `loadFixture()` than too few.
 
-##### Accessing Fixture Variables in Test Cases #####
+##### Accessing Fixture Variables in Test Cases
 You can also access shared fixture variables in test cases.  Use
   `$this->getFixtureVar()` to access them:
 
@@ -1036,7 +1168,7 @@ class SiteTableTest extends Test_Case_Unit
 }
 </pre>
 
-##### Defining Constants #####
+##### Defining Constants
 Because the database gets flushed before every test, it might be necessary to
   load a given test fixture several times over the course of a test case.  This
   makes it a little tricky to define constants in a test fixture.
@@ -1087,7 +1219,7 @@ As with shared fixture variables, constants defined in fixture files are not
 To avoid this problem, it is recommended that you adopt a naming convention
  (such as prepending "TEST_" to all test constant names).
 
-## Flushing the Database Manually ##
+## Flushing the Database Manually
 You can flush the database manually in your test by calling
   `$this->flushDatabase()`.
 
@@ -1145,7 +1277,7 @@ class backend_migrate_indexTest extends Test_Case_Functional
   finished (preferably in such a way that a failed assertion won't cause it to
   get skipped!).
 
-# File Uploads #
+# File Uploads
 JPUP requires that your project have a separate uploads directory for testing so
   that test execution doesn't overwrite production files.
 
@@ -1173,7 +1305,7 @@ test:
 * You will also need to make sure that the test uploads directory exists and is
   writable.
 
-## Removing Uploaded Files ##
+## Removing Uploaded Files
 JPUP will automatically remove all files in the test uploads directory before
   each test.
 
@@ -1210,7 +1342,7 @@ class frontend_account_profileTest extends Test_Case_Functional
 }
 </pre>
 
-# sfConfig #
+# sfConfig
 JPUP automatically restores `sfConfig` values between tests, so you do not have
   to manually reset any `sfConfig` changes during your tests.
 
@@ -1247,7 +1379,7 @@ class ConfigWatcherTest extends Test_Case_Unit
 }
 </pre>
 
-# Error Reporting #
+# Error Reporting
 By default, Symfony turns off `E_NOTICE` errors for the `test` environment.
   This can prevent PHPUnit from catching genuine logic errors, so JPUP requires
   that `error_reporting` be set to its most verbose setting in settings.yml.
@@ -1276,7 +1408,7 @@ test:
   code that generates `E_NOTICE` errors (and you don't want to fix them), you
   will need to make use of PHP's [`@` operator](http://php.net/language.operators.errorcontrol).
 
-# Bootstrap Script #
+# Bootstrap Script
 When running PHPUnit Symfony tasks, JPUP will look for and execute the
   bootstrap file in `sf_test_dir/bootstrap/phpunit.php`.  If you have any code that
   needs to be executed before any tests are run, put it in this bootstrap file.
@@ -1291,7 +1423,7 @@ For example, if your project does not have a `frontend` application, you will
 * This file is optional.  If JPUP does not find the bootstrap script, it will
   not trigger any errors.
 
-# Specifying the Application Name #
+# Specifying the Application Name
 By default, JPUP runs tests using the `frontend` application context.  If your
   test (unit or functional) should be run with a different configuration, add an
   `$_application` property to your test class:
@@ -1325,7 +1457,7 @@ class backend_config_SetTest extends Test_Case_Functional
 Test_Case::setDefaultApplicationName('appname');
 </pre>
 
-# Running Tests #
+# Running Tests
 JPUP includes a number of Symfony tasks that you can use to run your tests:
 
 - To run ALL tests: `php ./symfony phpunit:all`
@@ -1335,7 +1467,7 @@ JPUP includes a number of Symfony tasks that you can use to run your tests:
 Note:  JPUP is not compatible with Symfony's built-in test tasks.  Do not expect
   `php ./symfony test:*` tasks to work with PHPUnit test cases!
 
-### phpunit:all ###
+### phpunit:all
 <pre>
 Usage:
  symfony phpunit:all [-f|--filter="..."] [-g|--groups="..."] [-v|--verbose]
@@ -1353,7 +1485,7 @@ Description:
   runtime error will be generated if there are tests for two classes in
   different applications with the same name (e.g., `mainActions`).
 
-### phpunit:unit ###
+### phpunit:unit
 <pre>
 Usage:
  symfony phpunit:unit [-f|--filter="..."] [-g|--groups="..."] [-v|--verbose] [path1] ... [pathN]
@@ -1385,7 +1517,7 @@ Description:
   files, you can leverage readline's autocompletion feature to save yourself
   some typing.
 
-### phpunit:functional ###
+### phpunit:functional
 <pre>
 Usage:
  symfony phpunit:functional [-f|--filter="..."] [-g|--groups="..."] [-v|--verbose] [path1] ... [pathN]

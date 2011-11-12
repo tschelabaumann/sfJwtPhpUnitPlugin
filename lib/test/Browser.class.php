@@ -87,6 +87,45 @@ class Test_Browser extends Test_ObjectWrapper
     return $this;
   }
 
+  /** Signs the user in as the specified user[name] or email address.
+   *
+   * Note:  This actually injects a listener that will log the user in before
+   *  the next request because the browser clears out the context before making
+   *  the request ({@see sfBrowser->doCall()}).
+   *
+   * @param string|sfGuardUser $user
+   *
+   * @return Test_Browser($this)
+   */
+  public function signin( $user )
+  {
+    if( is_string($user) )
+    {
+      $name = $user;
+      $user = sfGuardUserTable::getInstance()
+        ->retrieveByUsernameOrEmailAddress($name);
+
+      if( ! $user )
+      {
+        throw new InvalidArgumentException(sprintf(
+          'No such user "%s".',
+            $name
+        ));
+      }
+    }
+
+    if( ! $user instanceof sfGuardUser )
+    {
+      throw new InvalidArgumentException(sprintf(
+        'Invalid %s encountered; sfGuardUser or string expected.',
+          (is_object($user) ? get_class($user) : gettype($user))
+      ));
+    }
+
+    $this->addListener(new Test_Browser_Listener_Signin($user));
+    return $this;
+  }
+
   /** Gets a URI.
    *
    * @param string $uri         The URI to fetch
@@ -154,6 +193,25 @@ class Test_Browser extends Test_ObjectWrapper
   public function isCalled(  )
   {
     return $this->_isCalled;
+  }
+
+  /** Adds an event listener to the browser object.
+   *
+   * @param Test_Browser_Listener $listener
+   *
+   * @return Test_Browser($this)
+   */
+  public function addListener( Test_Browser_Listener $listener )
+  {
+    foreach( $listener->getEventNames() as $event )
+    {
+      $this->getEncapsulatedObject()->addListener(
+        $event,
+        array($listener, 'invoke')
+      );
+    }
+
+    return $this;
   }
 
   /** Handles an attempt to call a non-existent method.
