@@ -29,14 +29,15 @@
  */
 class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
 {
+  const
+    MESSAGE = 'response has correct HTTP status code';
+
   protected
     $_expected;
 
   /** Init the class instance.
    *
    * @param int $expected
-   *
-   * @return void
    */
   public function __construct( $expected )
   {
@@ -54,7 +55,7 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
    *
    * @return bool
    */
-  public function evaluate( $browser )
+  protected function matches( $browser )
   {
     if( ! ($browser instanceof Test_Browser) )
     {
@@ -76,28 +77,24 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
   /** Appends relevant error message information to a failed status check.
    *
    * @param Test_Browser  $browser
-   * @param string        $message
-   * @param bool          $not
+   *
+   * @return string
    */
-  protected function failureDescription( $browser, $message, $not )
+  protected function failureDescription( $browser )
   {
     $code = $browser->getResponse()->getStatusCode();
-
-    $message = parent::failureDescription($code, $message, $not);
 
     /* See if there's an error we can report. */
     if( ! $error = (string) $browser->getError() )
     {
-      $error = Zend_Http_Response::responseCodeAsText($code);
+      $error = ($code . ' ' . Zend_Http_Response::responseCodeAsText($code));
     }
+
+    $message = self::MESSAGE;
 
     if( $error != '' )
     {
-      return (
-        (substr($message, -1) == '.')
-          ? sprintf('%s (error: %s).', substr($message, 0, -1), $error)
-          : sprintf('%s (error: %s)', $message, $error)
-      );
+      $message .= sprintf(' (error: %s)', $error);
     }
 
     return $message;
