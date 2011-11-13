@@ -81,6 +81,7 @@ abstract class Test_ObjectWrapper
   {
     if( is_object($Object) )
     {
+      /** @noinspection PhpUndefinedMethodInspection */
       $this->_encapsulatedObject =
         $Object instanceof self
           ? $Object->getEncapsulatedObject()
@@ -132,6 +133,7 @@ abstract class Test_ObjectWrapper
     $Reflector = new ReflectionObject($this);
     if( $Reflector->hasMethod($method) )
     {
+      /** @noinspection PhpUndefinedMethodInspection */
       throw new InvalidArgumentException(sprintf(
         '%s%s%s() is not overloadable.',
           $Reflector->getName(),
@@ -141,6 +143,7 @@ abstract class Test_ObjectWrapper
     }
 
     /* Check to make sure the specified callback is callable. */
+    /** @noinspection PhpParamsInspection */
     if( ! is_callable($callback) )
     {
       /* Try to convert $callback into a reasonably stringable value.
@@ -200,6 +203,8 @@ abstract class Test_ObjectWrapper
     {
       return $this->_injectedMethods[$method];
     }
+
+    return null;
   }
 
   /** Returns whether $_encapsulatedObject has been set yet.

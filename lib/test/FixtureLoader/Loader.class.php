@@ -36,8 +36,6 @@ abstract class Test_FixtureLoader_Loader
   /** Init the class instance.
    *
    * @param Test_FixtureLoader $Parent
-   *
-   * @return void
    */
   public function __construct( Test_FixtureLoader $Parent )
   {

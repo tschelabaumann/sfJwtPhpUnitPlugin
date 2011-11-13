@@ -40,7 +40,7 @@ class Test_FixtureLoader_Loader_Php extends Test_FixtureLoader_Loader
    *
    * @param string $file Absolute path to the file.
    *
-   * @return void
+   * @return mixed
    */
   protected function _loadFile( $file )
   {

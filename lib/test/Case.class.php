@@ -221,6 +221,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
           if( $table->hasTemplate('SoftDelete') )
           {
+            /** @var $record Doctrine_Template_SoftDelete */
             foreach( $table->createQuery()->execute() as $record )
             {
               $record->hardDelete();
@@ -292,7 +293,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
     catch( Doctrine_Connection_Exception $e )
     {
-      new sfDatabaseManager($this->getAppConfig());
+      new sfDatabaseManager(sfContext::getInstance()->getConfiguration());
       return Doctrine_Manager::connection();
     }
   }

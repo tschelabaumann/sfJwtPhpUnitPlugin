@@ -38,6 +38,6 @@ class Test_FixtureLoader_Loader_Yml extends Test_FixtureLoader_Loader
    */
   protected function _loadFile( $file )
   {
-    return Doctrine_Core::loadData($file, true);
+    Doctrine_Core::loadData($file, true);
   }
 }

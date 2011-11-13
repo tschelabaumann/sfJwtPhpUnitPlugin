@@ -27,6 +27,39 @@
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * Partial list of methods exposed for the encapsulated sfForm object (other
+ *  methods are available, but they are not read-only and are probably not
+ *  useful for testing):
+ *
+ * @method string                 __toString()
+ * @method boolean                hasGlobalErrors()
+ * @method array                  getGlobalErrors()
+ * @method boolean                isBound()
+ * @method string[]               getTaintedValues()
+ * @method boolean                isValid()
+ * @method boolean                hasErrors()
+ * @method string[]               getValues()
+ * @method mixed                  getValue(string $field)
+ * @method string|boolean         getName()
+ * @method sfValidatorErrorSchema getErrorSchema()
+ * @method sfForm[]               getEmbeddedForms()
+ * @method sfForm                 getEmbeddedForm(string $name)
+ * @method sfValidatorBase        getValidator(string $name)
+ * @method sfValidatorSchema      getValidatorSchema()
+ * @method sfWidgetForm           getWidget(string $name)
+ * @method sfWidgetFormSchema     getWidgetSchema()
+ * @method string[]               getStylesheets()
+ * @method string[]               getJavaScripts()
+ * @method array                  getOptions()
+ * @method mixed                  getOption(string $name, mixed $default = null)
+ * @method string                 getDefault(string $name)
+ * @method boolean                hasDefault(string $name)
+ * @method string[]               getDefaults()
+ * @method string                 getCSRFToken(string $secret = null)
+ * @method boolean                isCSRFProtected()
+ * @method boolean                isMultipart()
+ * @method sfFormFieldSchema      getFormFieldSchema()
  */
 class Test_Browser_Plugin_Form extends Test_Browser_Plugin
 {
@@ -52,6 +85,7 @@ class Test_Browser_Plugin_Form extends Test_Browser_Plugin
   {
     if( ! $this->hasEncapsulatedObject() )
     {
+      /** @var $Action sfAction */
       $Action =
         $this->getBrowser()
           ->getContext()

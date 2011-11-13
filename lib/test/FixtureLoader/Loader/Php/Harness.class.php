@@ -38,8 +38,6 @@ abstract class Test_FixtureLoader_Loader_Php_Harness extends Test_Harness
    *
    * @param Test_FixtureLoader  $FixtureLoader
    * @param string              $file
-   *
-   * @return void
    */
   public function __construct( Test_FixtureLoader $FixtureLoader, $file )
   {

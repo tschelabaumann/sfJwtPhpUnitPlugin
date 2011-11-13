@@ -31,7 +31,7 @@
 abstract class Test_Browser_Plugin extends Test_ObjectWrapper
 {
   private
-    /** @var sfBrowserBase */
+    /** @var sfBrowser */
     $_browser;
 
   /** Returns the name of the accessor that will invoke this plugin.
@@ -65,11 +65,9 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
 
   /** Init the class instance.
    *
-   * @param sfBrowserBase $Browser
-   *
-   * @return void
+   * @param sfBrowser $Browser
    */
-  final public function __construct( sfBrowserBase $Browser )
+  final public function __construct( sfBrowser $Browser )
   {
     $this->_browser = $Browser;
     $this->initialize();
@@ -77,7 +75,7 @@ abstract class Test_Browser_Plugin extends Test_ObjectWrapper
 
   /** Accessor for the corresponding browser object.
    *
-   * @return sfBrowserBase
+   * @return sfBrowser
    */
   public function getBrowser(  )
   {

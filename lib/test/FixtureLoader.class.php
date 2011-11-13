@@ -36,8 +36,6 @@ class Test_FixtureLoader
     $_depth;
 
   /** Init the class instance.
-   *
-   * @return void
    */
   public function __construct(  )
   {
@@ -82,6 +80,7 @@ class Test_FixtureLoader
 
         ++$this->_depth;
 
+        /** @var $Loader Test_FixtureLoader_Loader */
         $Loader = new $class($this);
         $res = $Loader->loadFixture($fixture);
 

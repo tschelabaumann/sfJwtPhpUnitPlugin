@@ -27,6 +27,28 @@
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * Partial list of methods exposed for the encapsulated sfWebResponse object
+ *  (other methods are available, but they are not read-only and are probably
+ *  not useful for testing):
+ *
+ * @method boolean  isHeaderOnly()
+ * @method string   getStatusText()
+ * @method int      getStatusCode()
+ * @method string   getHttpHeader(string $name, string $default = null)
+ * @method boolean  hasHttpHeader(string $name)
+ * @method string   getCharset()
+ * @method string   getContentType()
+ * @method string[] getHttpMetas()
+ * @method string   getTitle()
+ * @method string[] getPositions()
+ * @method string[] getStylesheets(string $position = sfWebRequest::ALL)
+ * @method string[] getJavascripts(string $position = sfWebRequest::ALL)
+ * @method string[] getSlots()
+ * @method string[] getCookies()
+ * @method string[] getHttpHeaders()
+ * @method string   getContent()
+ * @method array    getOptions()
  */
 class Test_Browser_Plugin_Response extends Test_Browser_Plugin
 {

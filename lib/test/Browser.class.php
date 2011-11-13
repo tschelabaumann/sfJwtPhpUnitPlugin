@@ -30,6 +30,43 @@
  *
  * @package jwt
  * @subpackage lib.test
+ *
+ * @method sfContext        getContext(boolean $forceReload = false)
+ * @method void             addListener(string $name, callable $listener)
+ * @method sfUser           getUser()
+ * @method sfBrowser        setHttpHeader(string $header, string $value)
+ * @method sfBrowser        setCookie(string $name, string $value, int $expire = null, string $path = '/', string $domain = '', boolean $secure = false, boolean $httpOnly = false)
+ * @method sfBrowser        removeCookie(string $name)
+ * @method sfBrowser        clearCookies()
+ * @method sfBrowser        setAuth(string $username, string $password)
+ * @method Test_Browser     back()
+ * @method Test_Browser     forward()
+ * @method Test_Browser     reload()
+ * @method sfDomCssSelector getResponseDomCssSelector()
+ * @method DOMXPath         getResponseDomXpath()
+ * @method sfDomCssSelector getResponseDom()
+ * @method Exception        getCurrentException()
+ * @method void             resetCurrentException()
+ * @method bool             checkCurrentExceptionIsEmpty()
+ * @method sfBrowser        followRedirect()
+ * @method sfBrowser        setField(string $name, string $value)
+ * @method sfBrowser        deselect(string $name)
+ * @method sfBrowser        select(string $name)
+ * @method sfBrowser        doSelect(string $name, boolean $selected)
+ * @method Test_Browser     click(string $name, array $arguments = array(), array $options = array())
+ * @method sfBrowser        restart()
+ *
+ * The following methods might or might not be available depending on which
+ *  plugins are active:
+ *
+ * @method Test_Browser_Plugin_Content    getContent()
+ * @method Test_Browser_Plugin_Error      getError()
+ * @method Test_Browser_Plugin_Form       getForm()
+ * @method Test_Browser_Plugin_Logger     getLogger()
+ * @method Test_Browser_Plugin_Mailer     getMailer()
+ * @method Test_Browser_Plugin_Request    getRequest()
+ * @method Test_Browser_Plugin_Response   getResponse()
+ * @method Test_Browser_Plugin_ViewCache  getViewCache()
  */
 class Test_Browser extends Test_ObjectWrapper
 {
@@ -38,8 +75,6 @@ class Test_Browser extends Test_ObjectWrapper
     $_plugins;
 
   /** Init the class instance.
-   *
-   * @return void
    */
   public function __construct(  )
   {
@@ -169,6 +204,7 @@ class Test_Browser extends Test_ObjectWrapper
       $Plugin->initialize();
     }
 
+    /** @noinspection PhpUndefinedMethodInspection */
     $this->getEncapsulatedObject()->call(
       $uri,
       $method,
@@ -205,6 +241,7 @@ class Test_Browser extends Test_ObjectWrapper
   {
     foreach( $listener->getEventNames() as $event )
     {
+      /** @noinspection PhpUndefinedMethodInspection */
       $this->getEncapsulatedObject()->addListener(
         $event,
         array($listener, 'invoke')

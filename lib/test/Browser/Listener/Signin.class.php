@@ -36,8 +36,6 @@ class Test_Browser_Listener_Signin
   /** Init the class instance.
    *
    * @param sfGuardUser $user
-   *
-   * @return void
    */
   public function __construct( sfGuardUser $user )
   {
@@ -67,7 +65,7 @@ class Test_Browser_Listener_Signin
       throw new RuntimeException('User object not created.');
     }
 
-    if( $user instanceof sfGuardSecurityUser )
+    if( $user instanceof sfBasicSecurityUser )
     {
       if( $user->isAuthenticated() )
       {

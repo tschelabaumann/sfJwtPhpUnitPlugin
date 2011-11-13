@@ -27,6 +27,52 @@
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * Partial list of methods exposed for the encapsulated sfWebRequest object
+ *  (other methods are available, but they are not read-only and are probably
+ *  not useful for testing):
+ *
+ * @method string             getContentType()
+ * @method string             getUri()
+ * @method boolean            isAbsUri()
+ * @method string             getUriPrefix()
+ * @method string             getPathInfo()
+ * @method string             getPathInfoPrefix()
+ * @method string[]           getGetParameters()
+ * @method string[]           getPostParameters()
+ * @method string[]           getRequestParameters()
+ * @method string             getReferer()
+ * @method string             getHost()
+ * @method string             getScriptName()
+ * @method boolean            isMethod(string $method)
+ * @method string             getPreferredCulture(array $cultures = null)
+ * @method string[]           getLanguages()
+ * @method string[]           getCharsets()
+ * @method string[]           getAcceptableContentTypes()
+ * @method boolean            isXmlHttpRequest()
+ * @method string             getHttpHeader(string $name, string $prefix = 'http')
+ * @method mixed              getCookie(string $name, mixed $defaultValue = null)
+ * @method boolean            isSecure()
+ * @method string             getRelativeUrlRoot()
+ * @method string[]           getPathInfoArray()
+ * @method string             getRequestFormat()
+ * @method array              getFiles(string $key = null)
+ * @method string             getGetParameter(string $name, string $default = null)
+ * @method string             getPostParameter(string $name, string $default = null)
+ * @method string             getUrlParameter(string $name, string $default = null)
+ * @method string             getRemoteAddress()
+ * @method string             getForwardedFor()
+ * @method string[]           getRequestContext()
+ * @method array              getOptions()
+ * @method string[]           extractParameters(array $names)
+ * @method string             getMethod()
+ * @method sfParameterHolder  getParameterHolder()
+ * @method sfParameterHolder  getAttributeHolder()
+ * @method string             getAttribute(string $name, string $default = null)
+ * @method boolean            hasAttribute(string $name)
+ * @method string             getParameter(string $name, string $default = null)
+ * @method boolean            hasParameter(string $name)
+ * @method string             getContent()
  */
 class Test_Browser_Plugin_Request extends Test_Browser_Plugin
 {
