@@ -23,7 +23,7 @@
 
 /** Creates a safe environment for executing PHP scripts.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -37,9 +37,7 @@ class Test_Harness
 
   /** Init the class instance.
    *
-   * @param string              $file
-   *
-   * @return void
+   * @param string $file
    */
   public function __construct( $file )
   {
@@ -59,7 +57,7 @@ class Test_Harness
     return $this->_isExecuting;
   }
 
-  /** Exeucute the fixture file.
+  /** Execute the fixture file.
    *
    * @return mixed
    */
@@ -72,5 +70,7 @@ class Test_Harness
       $this->_isExecuting = false;
       return $res;
     }
+
+    return null;
   }
 }

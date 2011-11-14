@@ -1,3 +1,16 @@
+# 1.0.6
+
+## Major Changes
+
+- Fixed output buffering issues with PHPUnit 3.6 once and for all.
+
+## Minor Changes
+
+- Better formatting of assertStatusCode() failure message.
+- Fixed IDE warnings, added @method declarations for object wrappers, fixed type
+    hinting where inaccurate.
+- Updated email address in @author tags.
+
 # 1.0.5
 
 ## Issues

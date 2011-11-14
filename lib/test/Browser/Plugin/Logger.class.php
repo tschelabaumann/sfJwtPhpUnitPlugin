@@ -25,6 +25,17 @@
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * Partial list of methods exposed for the encapsulated sfVarLogger object
+ *  (other methods are available, but they are not read-only and are probably
+ *  not useful for testing):
+ *
+ * @method array[]  getLogs()
+ * @method string[] getTypes()
+ * @method int[]    getPriorities()
+ * @method int      getHighestPriority()
+ * @method array    getOptions()
+ * @method int      getLogLevel()
  */
 class Test_Browser_Plugin_Logger extends Test_Browser_Plugin
 {

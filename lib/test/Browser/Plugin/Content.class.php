@@ -23,8 +23,8 @@
 
 /** Accesses browser response content.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
- * 
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
+ *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
  */

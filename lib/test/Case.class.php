@@ -26,7 +26,7 @@
  * Note:  This class is designed to work with Symfony 1.4 and might not work
  *  properly with other versions of Symfony.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -135,6 +135,14 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
   final public function tearDown(  )
   {
     $this->_tearDown();
+
+    /* If the test did too good of a job of cleaning up after itself, create a
+     *  tiny mess so that PHPUnit_Framework_TestCase feels productive.
+     */
+    if( ob_get_level() < 1 )
+    {
+      ob_start();
+    }
   }
 
   /** Accessor for a variable set in a fixture.
@@ -221,6 +229,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
           if( $table->hasTemplate('SoftDelete') )
           {
+            /** @var $record Doctrine_Template_SoftDelete */
             foreach( $table->createQuery()->execute() as $record )
             {
               $record->hardDelete();
@@ -292,7 +301,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
     catch( Doctrine_Connection_Exception $e )
     {
-      new sfDatabaseManager($this->getAppConfig());
+      new sfDatabaseManager(sfContext::getInstance()->getConfiguration());
       return Doctrine_Manager::connection();
     }
   }

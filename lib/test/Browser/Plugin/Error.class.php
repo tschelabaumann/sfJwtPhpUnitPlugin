@@ -23,10 +23,18 @@
 
 /** Exposes the Exception generated during a failed request.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
- * 
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
+ *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * @method string getMessage()
+ * @method mixed  getCode()
+ * @method string getFile()
+ * @method int    getLine()
+ * @method array  getTrace()
+ * @method string getTraceAsString()
+ * @method string __toString()
  */
 class Test_Browser_Plugin_Error extends Test_Browser_Plugin
 {

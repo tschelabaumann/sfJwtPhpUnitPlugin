@@ -23,7 +23,7 @@
 
 /** Init environment for working with PHPUnit tests.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage test.bootstrap

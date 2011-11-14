@@ -36,8 +36,6 @@ class Test_Browser_Listener_Signin
   /** Init the class instance.
    *
    * @param sfGuardUser $user
-   *
-   * @return void
    */
   public function __construct( sfGuardUser $user )
   {

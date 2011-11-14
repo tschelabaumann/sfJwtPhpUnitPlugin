@@ -23,10 +23,17 @@
 
 /** Exposes the Symfony email logger.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * Partial list of methods exposed for the encapsulated
+ *  sfMailerMessageLoggerPlugin object (other methods are available, but they
+ *  are not read-only and are probably not useful for testing):
+ *
+ * @method Swift_Mime_Message[] getMessages()
+ * @method int                  countMessages()
  */
 class Test_Browser_Plugin_Mailer extends Test_Browser_Plugin
 {

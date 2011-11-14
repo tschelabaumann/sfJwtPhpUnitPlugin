@@ -23,7 +23,7 @@
 
 /** Runs all tests for a project.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task.phpunit

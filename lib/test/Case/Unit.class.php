@@ -23,7 +23,7 @@
 
 /** Adds Symfony-specific features to PHPUnit's unit testing framework.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test

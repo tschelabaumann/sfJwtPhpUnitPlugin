@@ -27,7 +27,7 @@
  *  protected properties/methods of the wrapped instance; the wrapper can only
  *  add or overwrite functionality.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -81,6 +81,7 @@ abstract class Test_ObjectWrapper
   {
     if( is_object($Object) )
     {
+      /** @noinspection PhpUndefinedMethodInspection */
       $this->_encapsulatedObject =
         $Object instanceof self
           ? $Object->getEncapsulatedObject()
@@ -109,7 +110,7 @@ abstract class Test_ObjectWrapper
   /** Inject a dynamic method call into the object.
    *
    * @param string    $method     The name of the method.
-   * @param callable  $callback   The callback that will be invoked when the
+   * @param callback  $callback   The callback that will be invoked when the
    *  method is called.
    *
    * @return Test_ObjectWrapper($this)
@@ -132,6 +133,7 @@ abstract class Test_ObjectWrapper
     $Reflector = new ReflectionObject($this);
     if( $Reflector->hasMethod($method) )
     {
+      /** @noinspection PhpUndefinedMethodInspection */
       throw new InvalidArgumentException(sprintf(
         '%s%s%s() is not overloadable.',
           $Reflector->getName(),
@@ -141,6 +143,7 @@ abstract class Test_ObjectWrapper
     }
 
     /* Check to make sure the specified callback is callable. */
+    /** @noinspection PhpParamsInspection */
     if( ! is_callable($callback) )
     {
       /* Try to convert $callback into a reasonably stringable value.
@@ -200,6 +203,8 @@ abstract class Test_ObjectWrapper
     {
       return $this->_injectedMethods[$method];
     }
+
+    return null;
   }
 
   /** Returns whether $_encapsulatedObject has been set yet.
@@ -292,9 +297,9 @@ abstract class Test_ObjectWrapper
    */
   public function __call( $meth, $args )
   {
-    if( $callable = $this->getInjectedMethod($meth) )
+    if( $callback = $this->getInjectedMethod($meth) )
     {
-      return call_user_func_array($callable, $args);
+      return call_user_func_array($callback, $args);
     }
     elseif( $this->hasEncapsulatedObject() )
     {

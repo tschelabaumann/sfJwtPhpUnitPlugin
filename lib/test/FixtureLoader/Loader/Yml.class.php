@@ -23,7 +23,7 @@
 
 /** Loads a .yml test fixture.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -38,6 +38,6 @@ class Test_FixtureLoader_Loader_Yml extends Test_FixtureLoader_Loader
    */
   protected function _loadFile( $file )
   {
-    return Doctrine_Core::loadData($file, true);
+    Doctrine_Core::loadData($file, true);
   }
 }

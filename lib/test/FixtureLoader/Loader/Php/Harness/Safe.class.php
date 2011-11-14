@@ -24,7 +24,7 @@
 /** A test harness that can only access public/protected members of the fixture
  *   loader harness.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test

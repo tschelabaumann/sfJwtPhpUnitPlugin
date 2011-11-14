@@ -30,7 +30,7 @@
 class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
 {
   const
-    MESSAGE = 'response has correct HTTP status code';
+    MESSAGE = 'response has %d HTTP status code (got: %d %s)';
 
   protected
     $_expected;
@@ -87,16 +87,14 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
     /* See if there's an error we can report. */
     if( ! $error = (string) $browser->getError() )
     {
-      $error = ($code . ' ' . Zend_Http_Response::responseCodeAsText($code));
+      $error = Zend_Http_Response::responseCodeAsText($code);
     }
 
-    $message = self::MESSAGE;
-
-    if( $error != '' )
-    {
-      $message .= sprintf(' (error: %s)', $error);
-    }
-
-    return $message;
+    return sprintf(
+      self::MESSAGE,
+        $this->_expected,
+        $code,
+        $error
+    );
   }
 }

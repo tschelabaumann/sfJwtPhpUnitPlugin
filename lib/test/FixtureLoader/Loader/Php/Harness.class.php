@@ -23,7 +23,7 @@
 
 /** Creates a safe environment for executing PHP fixture files.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -38,8 +38,6 @@ abstract class Test_FixtureLoader_Loader_Php_Harness extends Test_Harness
    *
    * @param Test_FixtureLoader  $FixtureLoader
    * @param string              $file
-   *
-   * @return void
    */
   public function __construct( Test_FixtureLoader $FixtureLoader, $file )
   {

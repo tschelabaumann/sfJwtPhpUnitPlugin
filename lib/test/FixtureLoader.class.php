@@ -23,7 +23,7 @@
 
 /** Loads fixtures for unit/functional tests.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -36,8 +36,6 @@ class Test_FixtureLoader
     $_depth;
 
   /** Init the class instance.
-   *
-   * @return void
    */
   public function __construct(  )
   {
@@ -82,6 +80,7 @@ class Test_FixtureLoader
 
         ++$this->_depth;
 
+        /** @var $Loader Test_FixtureLoader_Loader */
         $Loader = new $class($this);
         $res = $Loader->loadFixture($fixture);
 

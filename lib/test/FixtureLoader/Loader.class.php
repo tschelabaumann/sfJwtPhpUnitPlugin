@@ -23,7 +23,7 @@
 
 /** Base functionality for fixture file loaders.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test
@@ -36,8 +36,6 @@ abstract class Test_FixtureLoader_Loader
   /** Init the class instance.
    *
    * @param Test_FixtureLoader $Parent
-   *
-   * @return void
    */
   public function __construct( Test_FixtureLoader $Parent )
   {

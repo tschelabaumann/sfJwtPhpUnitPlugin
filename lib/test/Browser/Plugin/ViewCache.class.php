@@ -23,10 +23,36 @@
 
 /** Extends browser view cache functionality.
  *
- * @author Phoenix Zerin <phoenix.zerin@jwt.com>
+ * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
+ *
+ * Partial list of methods exposed for the encapsulated sfViewCacheManager
+ *  object (other methods are available, but they are not read-only and are
+ *  probably not useful for testing):
+ *
+ * @method sfContext  getContext()
+ * @method sfCache    getCache()
+ * @method string     getCacheKeyVaryHeaderPart(string $internalUri, string $vary = '')
+ * @method string     getCacheKeyHostNamePart(string $hostName = '')
+ * @method boolean    withLayout(string $internalUri)
+ * @method int        getLifeTime(string $internalUri)
+ * @method int        getClientLifeTime(string $internalUri)
+ * @method boolean    isContextual(string $internalUri)
+ * @method string[]   getVary(string $internalUri)
+ * @method boolean    isCacheable(string $internalUri)
+ * @method boolean    isActionCacheable(string $moduleName, string $actionName)
+ * @method string     get(string $internalUri)
+ * @method boolean    has(string $internalUri)
+ * @method int        getLastModified(string $internalUri)
+ * @method int        getTimeout(string $internalUri)
+ * @method boolean    hasPartialCache(string $module, string $action, string $cacheKey)
+ * @method string     getPartialCache(string $module, string $action, string $cacheKey)
+ * @method boolean    hasActionCache(string $uri)
+ * @method string     getActionCache(string $uri)
+ * @method string     getPageCache(string $uri)
+ * @method string     getCurrentCacheKey()
  */
 class Test_Browser_Plugin_ViewCache extends Test_Browser_Plugin
 {
