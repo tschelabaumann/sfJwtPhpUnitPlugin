@@ -135,6 +135,14 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
   final public function tearDown(  )
   {
     $this->_tearDown();
+
+    /* If the test did too good of a job of cleaning up after itself, create a
+     *  tiny mess so that PHPUnit_Framework_TestCase feels productive.
+     */
+    if( ob_get_level() < 1 )
+    {
+      ob_start();
+    }
   }
 
   /** Accessor for a variable set in a fixture.
