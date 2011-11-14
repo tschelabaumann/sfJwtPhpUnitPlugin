@@ -134,6 +134,17 @@ class Test_Browser extends Test_ObjectWrapper
    */
   public function signin( $user )
   {
+    /* This functionality relies on sfDoctrineGuardPlugin. */
+    $plugins = sfContext::getInstance()->getConfiguration()->getPlugins();
+    if( ! in_array('sfDoctrineGuardPlugin', $plugins) )
+    {
+      throw new LogicException(sprintf(
+        'Cannot invoke %s->%s(); sfDoctrineGuardPlugin is not enabled.',
+          __CLASS__,
+          __FUNCTION__
+      ));
+    }
+
     if( is_string($user) )
     {
       $name = $user;
