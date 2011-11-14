@@ -213,6 +213,16 @@ class Test_Browser extends Test_ObjectWrapper
     );
     $this->_isCalled = true;
 
+    /** If Symfony throws a 500 error, it will clear out ALL output buffering.
+     *    This causes all kinds of wonky things to happen in PHPUnit 3.6.
+     *
+     * @see sfException::printStackTrace()
+     */
+    if( ob_get_level() < 1 )
+    {
+      ob_start();
+    }
+
     return $this;
   }
 
