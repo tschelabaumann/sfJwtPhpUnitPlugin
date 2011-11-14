@@ -65,7 +65,7 @@ class Test_Browser_Listener_Signin
       throw new RuntimeException('User object not created.');
     }
 
-    if( $user instanceof sfBasicSecurityUser )
+    if( $user instanceof sfGuardSecurityUser )
     {
       if( $user->isAuthenticated() )
       {
