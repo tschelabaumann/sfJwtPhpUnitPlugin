@@ -110,7 +110,7 @@ abstract class Test_ObjectWrapper
   /** Inject a dynamic method call into the object.
    *
    * @param string    $method     The name of the method.
-   * @param callable  $callback   The callback that will be invoked when the
+   * @param callback  $callback   The callback that will be invoked when the
    *  method is called.
    *
    * @return Test_ObjectWrapper($this)
@@ -297,9 +297,9 @@ abstract class Test_ObjectWrapper
    */
   public function __call( $meth, $args )
   {
-    if( $callable = $this->getInjectedMethod($meth) )
+    if( $callback = $this->getInjectedMethod($meth) )
     {
-      return call_user_func_array($callable, $args);
+      return call_user_func_array($callback, $args);
     }
     elseif( $this->hasEncapsulatedObject() )
     {

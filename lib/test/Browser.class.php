@@ -32,7 +32,7 @@
  * @subpackage lib.test
  *
  * @method sfContext        getContext(boolean $forceReload = false)
- * @method void             addListener(string $name, callable $listener)
+ * @method void             addListener(string $name, callback $listener)
  * @method sfUser           getUser()
  * @method sfBrowser        setHttpHeader(string $header, string $value)
  * @method sfBrowser        setCookie(string $name, string $value, int $expire = null, string $path = '/', string $domain = '', boolean $secure = false, boolean $httpOnly = false)

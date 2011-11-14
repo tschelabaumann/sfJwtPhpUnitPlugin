@@ -15,7 +15,7 @@ class Test_Browser_Listener_Callback
   /** Init the class instance.
    *
    * @param $event    string
-   * @param $callback callable,...
+   * @param $callback callback,...
    */
   public function __construct( $event, $callback/*, ... */ )
   {
