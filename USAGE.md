@@ -867,6 +867,74 @@ With the above configuration in place in your application's `factories.yml`
   objects (but be aware that this comes at a cost; the `sfVarLogger` will be
   created and populated regardless of whether you use it!).
 
+#### Injecting Event Handlers
+
+From time to time, it might be useful for tests to inject event handlers into
+  the browser context.  Since the browser creates a new context for every
+  request, this can be tricky to pull off.
+
+`Test_Browser_Listener_Callback` was created to make it easier to accomplish
+  exactly this.  To inject an event handler into the browser context, create a
+  new instance of `Test_Browser_Listener_Callback` and pass it to
+  `Test_Browser->addListener()`.
+
+As an example, consider this test which checks to see if an event handler can
+  abort the signin process by setting the event's return value to `false`:
+
+<pre>
+# sf_test_dir/functional/frontend/auth/signin.php:
+
+class frontend_auth_signinTest extends Test_Case_Functional
+{
+  public function testEventHandlerBlocksSignin(  )
+  {
+    /* Inject event handler that listens for pre-signin event. */
+    $this->_browser->addListener(new Test_Browser_Listener_Callback(
+      'auth.user.signin.pre',
+      array($this, '_blockSignin')
+    ));
+
+    /* Simulate submission of login form. */
+    $this->_browser->post('/auth/signin', array(
+      'username'  => 'foo',
+      'password'  => 'bar'
+    ));
+
+    $this->assertFalse(
+      $this->_browser->getUser()->isAuthenticated(),
+      'Expected user to remain unauthenticated.'
+    );
+  }
+
+  /** Aborts the signin process by setting the event's return value to false.
+   *
+   * @param sfEvent $event
+   *
+   * @return void
+   */
+  public function _blockSignin( sfEvent $event )
+  {
+    $event->setReturnValue(false);
+  };
+}
+</pre>
+
+`Test_Browser_Listener_Callback->__construct()` accepts a single event name and
+  one or more callbacks; e.g.:
+
+<pre>
+$this->_browser->addListener(new Test_Browser_Listener_Callback(
+  'context.load_factories',
+    array($this, '_initContext'),
+    array('MyClass', 'doSomething'),
+
+    /* PHP 5.3 closures are also supported: */
+    function( sfEvent $event ) { ... }
+
+    // etc.
+));
+</pre>
+
 # Database Interaction
 Note that JPUP is currently only compatible with Doctrine.
 
