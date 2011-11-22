@@ -2,7 +2,7 @@
 
 ## Major Changes
 
-- JPUP no longer recognizes the `--trace` option.
+- JPUP no longer recognizes the `--trace` option due to incompatibilities with PHPUnit 3.6.
 
 ## Minor Changes
 
@@ -18,10 +18,10 @@
 
 ## Minor Changes
 
-- Better formatting of assertStatusCode() failure message.
-- Fixed IDE warnings, added @method declarations for object wrappers, fixed type
+- Better formatting of `assertStatusCode()` failure message.
+- Fixed IDE warnings, added `@method` declarations for object wrappers, fixed type
     hinting where inaccurate.
-- Updated email address in @author tags.
+- Updated email address in `@author` tags.
 
 # 1.0.5
 
