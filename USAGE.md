@@ -1613,6 +1613,6 @@ Description:
   * `./symfony phpunit:functional frontend/api/publish frontend/ajax`
   * `./symfony phpunit:functional frontend/api/publish.php frontend/ajax/*`
 
-* JPUP currently runs all tests in the same PHP instance.  Be aware that a fatal
-  error will be generated if there are tests for two classes in different
-  applications with the same name (e.g., `mainActions`).
+* JPUP currently runs all tests in the same PHP instance.  To avoid classloader
+  problems, it is recommended that you run functional tests for one application
+  at a time.
