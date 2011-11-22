@@ -1,3 +1,15 @@
+# 1.0.7
+
+## Major Changes
+
+- JPUP no longer recognizes the `--trace` option.
+
+## Minor Changes
+
+- Added `Test_Browser_Listener_Callback` for injecting event handlers into browser execution.
+- Check for `sfDoctrineGuardPlugin` before proceeding in `Test_Browser->signin()`.
+- Set `error_reporting` automatically when installed.
+
 # 1.0.6
 
 ## Major Changes
