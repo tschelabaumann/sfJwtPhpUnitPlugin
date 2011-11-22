@@ -164,6 +164,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->name) . ' Tests');
       $Suite->addTestFiles($files);
 
+      /* Ignition... */
       try
       {
         $Runner->doRun($Suite, $options);
@@ -291,7 +292,6 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       'filter'      => null,
       'groups'      => null,
       'plugin'      => null,
-      'trace'				=> null,
       'verbose'     => false
     );
 
