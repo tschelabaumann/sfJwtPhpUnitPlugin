@@ -1,3 +1,15 @@
+# 1.0.7
+
+## Major Changes
+
+- JPUP no longer recognizes the `--trace` option due to incompatibilities with PHPUnit 3.6.
+
+## Minor Changes
+
+- Added `Test_Browser_Listener_Callback` for injecting event handlers into browser execution.
+- Check for `sfDoctrineGuardPlugin` before proceeding in `Test_Browser->signin()`.
+- Set `error_reporting` automatically in some cases.
+
 # 1.0.6
 
 ## Major Changes
@@ -6,10 +18,10 @@
 
 ## Minor Changes
 
-- Better formatting of assertStatusCode() failure message.
-- Fixed IDE warnings, added @method declarations for object wrappers, fixed type
+- Better formatting of `assertStatusCode()` failure message.
+- Fixed IDE warnings, added `@method` declarations for object wrappers, fixed type
     hinting where inaccurate.
-- Updated email address in @author tags.
+- Updated email address in `@author` tags.
 
 # 1.0.5
 

@@ -1,3 +1,4 @@
 test:
   .settings:
-    fixture_dir:  %SF_TEST_DIR%/fixtures
+    error_reporting:        <?php echo (E_ALL | E_STRICT), PHP_EOL; ?>
+    fixture_dir:            %SF_TEST_DIR%/fixtures

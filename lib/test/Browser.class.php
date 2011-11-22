@@ -134,6 +134,17 @@ class Test_Browser extends Test_ObjectWrapper
    */
   public function signin( $user )
   {
+    /* This functionality relies on sfDoctrineGuardPlugin. */
+    $plugins = sfContext::getInstance()->getConfiguration()->getPlugins();
+    if( ! in_array('sfDoctrineGuardPlugin', $plugins) )
+    {
+      throw new LogicException(sprintf(
+        'Cannot invoke %s->%s(); sfDoctrineGuardPlugin is not enabled.',
+          __CLASS__,
+          __FUNCTION__
+      ));
+    }
+
     if( is_string($user) )
     {
       $name = $user;
@@ -212,6 +223,16 @@ class Test_Browser extends Test_ObjectWrapper
       $changeStack
     );
     $this->_isCalled = true;
+
+    /** If Symfony throws a 500 error, it will clear out ALL output buffering.
+     *    This causes all kinds of wonky things to happen in PHPUnit 3.6.
+     *
+     * @see sfException::printStackTrace()
+     */
+    if( ob_get_level() < 1 )
+    {
+      ob_start();
+    }
 
     return $this;
   }

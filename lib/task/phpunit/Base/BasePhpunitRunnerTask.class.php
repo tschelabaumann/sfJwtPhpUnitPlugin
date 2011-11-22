@@ -112,18 +112,12 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
     $this->_executeGlobalBootstrap();
     $this->_executeProjectBootstrap();
 
-    if( empty($options['trace']) )
-    {
-      $this->_populateTraceBlacklist();
-    }
-    unset($options['trace']);
-
     $this->_doRunTests($options);
   }
 
   /** Initialize the PHPUnit test runner and run tests.
    *
-   * @param array $options
+   * @param string[] $options
    *
    * @return void
    */
@@ -138,6 +132,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       try
       {
         /* @var $config sfPluginConfiguration */
+        /** @noinspection PhpUndefinedMethodInspection */
         $config = $this->configuration
           ->getPluginConfiguration($options['plugin']);
       }
@@ -158,6 +153,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
 
     if( $files = $this->_findTestFiles($this->_type, (array) $this->_paths, $basedir) )
     {
+      /** @noinspection PhpIncludeInspection */
       require_once
         'PHPUnit' . DIRECTORY_SEPARATOR
         . 'TextUI'  . DIRECTORY_SEPARATOR
@@ -168,6 +164,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->name) . ' Tests');
       $Suite->addTestFiles($files);
 
+      /* Ignition... */
       try
       {
         $Runner->doRun($Suite, $options);
@@ -190,7 +187,7 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
    *  tests under $type returned.
    * @param string  $basedir Base directory all $paths are relative to.
    *
-   * @return array(string)
+   * @return string[]
    */
   protected function _findTestFiles( $type = '', array $paths = array(), $basedir = null )
   {
@@ -295,7 +292,6 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       'filter'      => null,
       'groups'      => null,
       'plugin'      => null,
-      'trace'				=> null,
       'verbose'     => false
     );
 
@@ -364,28 +360,5 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       $Harness = new Test_Harness_Safe($init);
       $Harness->execute();
     }
-  }
-
-  /** Adds various plugin support files to the blacklist so that they are not
-   *   output in test failure traces.
-   *
-   * @return void
-   */
-  protected function _populateTraceBlacklist(  )
-  {
-    $blacklist = array(
-      $this->_getBasedir(),                       /* Plugin files.        */
-      sfCoreAutoload::getInstance()->getBaseDir() /* Base Symfony files.  */
-    );
-
-    foreach( $blacklist as $dir )
-    {
-      PHP_CodeCoverage_Filter::getInstance()->addDirectoryToBlacklist($dir);
-    }
-
-    /* Also ignore the Symfony executable. */
-    PHP_CodeCoverage_Filter::getInstance()->addFileToBlacklist(
-      sfConfig::get('sf_root_dir') . DIRECTORY_SEPARATOR . 'symfony'
-    );
   }
 }

@@ -31,7 +31,4 @@
  */
 class sfJwtPhpUnitPluginConfiguration extends sfPluginConfiguration
 {
-  public function initialize(  )
-  {
-  }
 }
