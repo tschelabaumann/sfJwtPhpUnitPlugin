@@ -54,20 +54,20 @@ abstract class Test_FixtureLoader_Loader
   /** Loads and evaluates a fixture file.
    *
    * @param string $fixture
+   * @param string $basedir
    *
    * @return mixed
    */
-  public function loadFixture( $fixture )
+  public function loadFixture( $fixture, $basedir )
   {
-    $dir = sfConfig::get('sf_test_dir').'/fixtures';
-    $target = realpath($dir . '/' . $fixture);
+    $target = realpath($basedir . $fixture);
 
     if( ! $target )
     {
       throw new Exception(sprintf(
         'Fixture file "%s" does not exist in %s.',
           $fixture,
-          $dir
+          $basedir
       ));
     }
 
@@ -79,12 +79,12 @@ abstract class Test_FixtureLoader_Loader
       ));
     }
 
-    if( strpos($target, $dir) !== 0 )
+    if( strpos($target, $basedir) !== 0 )
     {
       throw new Exception(sprintf(
-        'Fixture file "%s" is not in allowed directory %s.',
+        'Fixture file "%s" is not in fixture directory %s.',
           $fixture,
-          $dir
+          $basedir
       ));
     }
 
