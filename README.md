@@ -25,11 +25,19 @@ The most critical problems we set out to solve with JPUP are:
 - Using Symfony tasks to run multiple tests in one go.
 
 ## Compatibility
+
+### Symfony
 JPUP was developed specifically for projects using Symfony 1.4 and Doctrine.
 
-Propel is not currently supported.
+Propel is not currently supported, but
+  [there are plans to add Propel support](https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/issues/29).
 
+### PHPUnit
 JPUP requires PHPUnit 3.6.  PHPUnit 3.5 and earlier versions are not supported.
+
+### PHP
+
+JPUP is intended to be compatible with PHP 5.2 and greater.
 
 ## Installation
 See INSTALL.md.
