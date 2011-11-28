@@ -160,13 +160,92 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    *
    * @param string $fixture The name of the fixture file (e.g., test_data.yml).
    * @param bool   $force   If true, the fixture will be loaded even if it has
-   *  already been loaded.
+   *  already been loaded during this test.
    *
-   * @return void
+   * @return mixed
    */
   protected function loadFixture( $fixture, $force = false )
   {
     return $this->_fixtureLoader->loadFixture($fixture, $force);
+  }
+
+  /** Loads a production fixture into the database.
+   *
+   * Production fixtures are identical to YAML test fixtures, except they are
+   *  located in `sf_data_dir`.
+   *
+   * @param string  $fixture  The name of the fixture file (e.g., users.yml).
+   * @param bool    $force    If true, the fixture will be loaded even if it has
+   *  already been loaded during this test.
+   *
+   * @return mixed
+   */
+  protected function loadProductionFixture( $fixture, $force = false )
+  {
+    return $this->_fixtureLoader->loadFixture(
+      $fixture,
+      $force,
+      (sfConfig::get('sf_data_dir') . '/fixtures')
+    );
+  }
+
+  /** Loads a plugin test fixture into the database.
+   *
+   * @param string  $plugin   The plugin name.
+   * @param string  $fixture  The name of the fixture file (e.g., types.yml).
+   * @param bool    $force    If true, the fixture will be loaded even if it has
+   *  already been loaded during this test.
+   *
+   * @return mixed
+   *
+   * @todo Deprecate and remove once issue #3 is resolved
+   *  (https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/issues/3).
+   */
+  protected function loadPluginFixture( $plugin, $fixture, $force = false )
+  {
+    $config =
+      sfContext::getInstance()
+        ->getConfiguration()
+        ->getPluginConfiguration($plugin);
+
+    return $this->_fixtureLoader->loadFixture(
+      $fixture,
+      $force,
+      $config->getRootDir() . '/test/fixtures'
+    );
+  }
+
+  /** Loads a plugin production fixture into the database.
+   *
+   * Production fixtures are identical to YAML test fixtures, except they are
+   *  located in the plugin's `data` directory.
+   *
+   * @param string  $plugin   The plugin name.
+   * @param string  $fixture  The name of the fixture file (e.g., types.yml).
+   * @param bool    $force    If true, the fixture will be loaded even if it has
+   *  already been loaded during this test.
+   *
+   * @return mixed
+   *
+   * @todo Deprecate and remove once issue #3 is resolved
+   *  (https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/issues/3).
+   */
+  protected function loadPluginProductionFixture(
+    $plugin,
+    $fixture,
+    $force = false
+  )
+  {
+    $config =
+      sfContext::getInstance()
+        ->getConfiguration()
+        ->getPluginConfiguration($plugin);
+
+    return $this->_fixtureLoader->loadFixture(
+      $fixture,
+      $force,
+      $config->getRootDir() . '/data/fixtures'
+    );
   }
 
   /** Flush the database and reload base fixtures.
@@ -283,6 +362,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
     else
     {
+      /* Set custom sfConfig values here. */
+      sfConfig::add(array(
+        'sf_fixture_dir'  => (sfConfig::get('sf_test_dir') . '/fixtures')
+      ));
+
       self::$_configs = sfConfig::getAll();
     }
 

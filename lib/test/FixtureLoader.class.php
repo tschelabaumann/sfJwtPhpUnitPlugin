@@ -47,10 +47,11 @@ class Test_FixtureLoader
 
   /** Loads a fixture file.
    *
-   * @param string|array(string)  $fixture The name of the fixture file
+   * @param string|string[] $fixture The name(s) of the fixture file(s)
    *  (e.g., test_data.yml).
-   * @param bool                  $force   If true, the fixture will be loaded
+   * @param bool            $force   If true, the fixture will be loaded
    *  even if it has already been loaded.
+   * @param string          $basedir Alternate basedir to load fixture from.
    *
    * @return mixed Some fixture files can return a value.  If an array value is
    *  passed in, an array will be returned as:
@@ -59,48 +60,72 @@ class Test_FixtureLoader
    * If the fixture file was already loaded (and $force is false), loadFixture()
    *  will return false.
    */
-  public function loadFixture( $fixture, $force = false )
+  public function loadFixture( $fixture, $force = false, $basedir = null )
   {
     if( is_array($fixture) )
     {
       $res = array();
       foreach( $fixture as $file )
       {
-        $res[$file] = $this->loadFixture($file);
+        $res[$file] = $this->loadFixture($file, $force, $basedir);
       }
-      return $res;
-    }
-    elseif( $force or ! $this->isFixtureLoaded($fixture) )
-    {
-      if( $pos = strrpos($fixture, '.') )
-      {
-        $class =
-            'Test_FixtureLoader_Loader_'
-          . ucfirst(strtolower(substr($fixture, $pos + 1)));
-
-        ++$this->_depth;
-
-        /** @var $Loader Test_FixtureLoader_Loader */
-        $Loader = new $class($this);
-        $res = $Loader->loadFixture($fixture);
-
-        --$this->_depth;
-      }
-      else
-      {
-        throw new Exception(sprintf(
-          'Fixture filename "%s" has no extension.',
-            $fixture
-        ));
-      }
-
-      $this->_fixturesLoaded[$fixture] = true;
       return $res;
     }
     else
     {
-      /* Fixture file was already loaded. */
-      return false;
+      /* Validate $basedir. */
+      $basedir = (
+        is_null($basedir)
+          ? sfConfig::get('sf_fixture_dir')
+          : $basedir
+      );
+
+      if( ! is_dir($basedir) )
+      {
+        throw new InvalidArgumentException(sprintf(
+          'Fixture directory "%s" does not exist.',
+            $basedir
+        ));
+      }
+
+      /* Normalize $basedir. */
+      $basedir =
+        rtrim(realpath($basedir), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+      /* Check to see if this fixture has already been loaded. */
+      if( $force or ! $this->isFixtureLoaded($basedir . $fixture) )
+      {
+        /* Check file extension to determine which fixture loader to use. */
+        if( $pos = strrpos($fixture, '.') )
+        {
+          $class =
+              'Test_FixtureLoader_Loader_'
+            . ucfirst(strtolower(substr($fixture, $pos + 1)));
+
+          ++$this->_depth;
+
+          /** @var $Loader Test_FixtureLoader_Loader */
+          $Loader = new $class($this);
+          $res = $Loader->loadFixture($fixture, $basedir);
+
+          --$this->_depth;
+        }
+        else
+        {
+          throw new InvalidArgumentException(sprintf(
+            'Fixture filename "%s" has no extension.',
+              $fixture
+          ));
+        }
+
+        $this->_fixturesLoaded[$basedir . $fixture] = true;
+        return $res;
+      }
+      else
+      {
+        /* Fixture file was already loaded. */
+        return false;
+      }
     }
   }
 
