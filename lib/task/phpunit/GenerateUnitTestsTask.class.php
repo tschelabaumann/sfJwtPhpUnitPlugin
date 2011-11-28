@@ -109,7 +109,7 @@ END;
          * If we get to this point, something must be REALLY broken.
          */
         throw new sfException(sprintf(
-          'Plugin "%s" does not appear to be loaded.  This should never happen; please file a bug report for JPUP.'
+          'Class belongs to plugin %s which is not enabled.  This should never happen; please file a bug report for JPUP.'
         ));
       }
 
