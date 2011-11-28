@@ -362,6 +362,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     }
     else
     {
+      /* Set custom sfConfig values here. */
+      sfConfig::add(array(
+        'sf_fixture_dir'  => (sfConfig::get('sf_test_dir') . '/fixtures')
+      ));
+
       self::$_configs = sfConfig::getAll();
     }
 
