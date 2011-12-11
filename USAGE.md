@@ -1005,20 +1005,13 @@ Before running each test, JPUP automatically flushes the database:
 * For efficiency, subsequent tests will truncate all tables instead of
   rebuilding the entire database.
 
-Once the data has been flushed, JPUP loads global test data fixtures, if any
-  exist (see below).
-
 Note that JPUP flushes the database **before** each test, not **after** it.
   This is by design; if you want to inspect the state of the database after a
   failed test, use `exit()` to halt test execution before the failing assertion,
   then use your favorite DB client application to examine the test database.
 
 ## Loading Fixtures
-For efficiency, only global test fixtures are loaded by default (more on this
-  in a bit).
-
-To load additional test fixtures, call `$this->loadFixture()` in your test case,
-  e.g.:
+To load test fixtures, call `$this->loadFixture()` in your test case, e.g.:
 
 <pre>
 # sf_test_dir/unit/Hello.php
@@ -1040,8 +1033,8 @@ class HelloTest extends Test_Case_Unit
     * Consider leveraging `_setUp()` for fixtures that must be loaded for every
       test in a test case.
 
-* All test fixtures must be located in `sf_test_dir/fixtures`.  The fixture loader will
-  not load any fixture files outside this directory.
+* All test fixtures must be located in `sf_test_dir/fixtures`.  The fixture
+  loader will not load any fixture files outside this directory.
 
   Note that this means that you cannot load production data fixtures (located in
   `sf_root_dir/data/fixtures`) in your test cases.  This is intentional; JPUP is
@@ -1050,17 +1043,6 @@ class HelloTest extends Test_Case_Unit
 * By default, `loadFixture()` will not load a fixture more than once during a
   test.  There is a way to force it to load a fixture multiple times (but be
   wary of infinite loops!).  See the API documentation for more information.
-
-### Global Fixtures
-As mentioned above, there is a category of fixture that does get loaded
-  automatically before each test, known as global fixtures.
-
-Global fixtures are named like `_global.*` (e.g., `_global.yml`, `_global.php`,
-  etc.).  In other words there can be one global fixture for each fixture type.
-
-Global fixtures are loaded using the same mechanism as other fixtures, so they
-  must be located in `sf_test_dir/fixtures` and have the same limitations and
-  features as any other fixture.
 
 ### Fixture Types
 JPUP supports loading two different fixture types:  YAML and PHP.

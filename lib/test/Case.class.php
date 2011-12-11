@@ -292,15 +292,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
           $table->createQuery()->delete()->execute();
         }
       }
-
-      $this->_fixtureLoader
-        ->flushFixtures()
-        ->loadFixture(
-            sfFinder::type('file')
-              ->name('_global.*')
-              ->relative()
-              ->in(sfConfig::get('sf_root_dir') . '/test/fixtures')
-          );
     }
 
     return $this;
