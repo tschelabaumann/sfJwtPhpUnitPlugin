@@ -1042,7 +1042,7 @@ class TicketTest extends Test_Case_Unit
   protected function _setUp(  )
   {
     /* Load sf_data_dir/fixtures/ticket_types.yml. */
-    $this->loadFixture('ticket_types.yml');
+    $this->loadProductionFixture('ticket_types.yml');
   }
 }
 </pre>
