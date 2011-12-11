@@ -51,14 +51,20 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $_configs;
 
   protected
-    /** The name of the application configuration to load for this test case. */
+    /** The name of the application configuration to load for this test case.
+     *
+     * Generally only applies to functional tests.
+     */
     $_application,
-    /** The name of the plugin configuration to load for this test case. */
+
+    /** The name of the plugin configuration to load for this test case.
+     *
+     * Generally only applies to unit tests.
+     */
     $_plugin;
 
-  private
-    /** @var Test_FixtureLoader */
-    $_fixtureLoader;
+  /** @var Test_FixtureLoader */
+  private $_fixtureLoader;
 
   /** Accessor for the default application name.
    *
@@ -161,15 +167,26 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
   /** Loads a text fixture into the database.
    *
-   * @param string $fixture The name of the fixture file (e.g., test_data.yml).
-   * @param bool   $force   If true, the fixture will be loaded even if it has
-   *  already been loaded during this test.
+   * @param string      $fixture  Fixture file name (e.g., test_data.yml).
+   * @param bool        $force    If true, the fixture will be loaded even if it
+   *  has already been loaded during this test.
+   * @param string|bool $plugin   Determines where to load the fixture file:
+   *  - (bool) false: Look in `sf_test_dir/fixtures`.
+   *  - (bool) true:  Look in `sf_plugin_dir/$this->_plugin/test/fixtures`.
+   *  - (string):     Look in `sf_plugin_dir/$plugin/test/fixtures`.
+   *
+   * If $plugin is true, but $this->_plugin is not set, the result is the same
+   *  as if $plugin is false.
    *
    * @return mixed
    */
-  protected function loadFixture( $fixture, $force = false )
+  protected function loadFixture( $fixture, $force = false, $plugin = true )
   {
-    return $this->_fixtureLoader->loadFixture($fixture, $force);
+    return $this->_fixtureLoader->loadFixture(
+      $fixture,
+      $force,
+      $this->_getFixtureDir(false, $plugin)
+    );
   }
 
   /** Loads a production fixture into the database.
@@ -180,72 +197,26 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    * @param string  $fixture  The name of the fixture file (e.g., users.yml).
    * @param bool    $force    If true, the fixture will be loaded even if it has
    *  already been loaded during this test.
+   * @param string|bool $plugin   Determines where to load the fixture file:
+   *  - (bool) false: Look in `sf_data_dir/fixtures`.
+   *  - (bool) true:  Look in `sf_plugin_dir/$this->_plugin/data/fixtures`.
+   *  - (string):     Look in `sf_plugin_dir/$plugin/data/fixtures`.
+   *
+   * If $plugin is true, but $this->_plugin is not set, the result is the same
+   *  as if $plugin is false.
    *
    * @return mixed
    */
-  protected function loadProductionFixture( $fixture, $force = false )
-  {
-    return $this->_fixtureLoader->loadFixture(
-      $fixture,
-      $force,
-      $this->_getFixtureDir(true)
-    );
-  }
-
-  /** Loads a plugin test fixture into the database.
-   *
-   * @param string  $plugin   The plugin name.
-   * @param string  $fixture  The name of the fixture file (e.g., types.yml).
-   * @param bool    $force    If true, the fixture will be loaded even if it has
-   *  already been loaded during this test.
-   *
-   * @return mixed
-   *
-   * @deprecated Use loadFixture() instead.
-   */
-  protected function loadPluginFixture( $plugin, $fixture, $force = false )
-  {
-    $config =
-      sfContext::getInstance()
-        ->getConfiguration()
-        ->getPluginConfiguration($plugin);
-
-    return $this->_fixtureLoader->loadFixture(
-      $fixture,
-      $force,
-      $config->getRootDir() . '/test/fixtures'
-    );
-  }
-
-  /** Loads a plugin production fixture into the database.
-   *
-   * Production fixtures are identical to YAML test fixtures, except they are
-   *  located in the plugin's `data` directory.
-   *
-   * @param string  $plugin   The plugin name.
-   * @param string  $fixture  The name of the fixture file (e.g., types.yml).
-   * @param bool    $force    If true, the fixture will be loaded even if it has
-   *  already been loaded during this test.
-   *
-   * @return mixed
-   *
-   * @deprecated Use loadProductionFixture() instead.
-   */
-  protected function loadPluginProductionFixture(
-    $plugin,
+  protected function loadProductionFixture(
     $fixture,
-    $force = false
+    $force    = false,
+    $plugin   = true
   )
   {
-    $config =
-      sfContext::getInstance()
-        ->getConfiguration()
-        ->getPluginConfiguration($plugin);
-
     return $this->_fixtureLoader->loadFixture(
       $fixture,
       $force,
-      $config->getRootDir() . '/data/fixtures'
+      $this->_getFixtureDir(true, $plugin)
     );
   }
 
@@ -276,6 +247,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       {
         /* Don't try to drop the database unless it exists. */
         $name = $this->getDatabaseName();
+        /** @noinspection PhpUndefinedFieldInspection */
         if( $name and $db->import->databaseExists($name) )
         {
           $db->dropDatabase();
@@ -296,6 +268,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         /* Determine the order we need to load models. */
         if( ! isset(self::$_dbFlushTree) )
         {
+          /** @noinspection PhpUndefinedFieldInspection */
           $models = $db->unitOfWork->buildFlushTree(
             Doctrine_Core::getLoadedModels()
           );
@@ -408,6 +381,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       ));
     }
 
+    /** @noinspection PhpParamsInspection */
     $info = $db->getManager()->parsePdoDsn($dsn);
     return (isset($info['dbname']) ? $info['dbname'] : null);
   }
@@ -545,18 +519,30 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
   /** Returns the path to the fixture directory for this test case.
    *
-   * @param bool $production
+   * @param bool        $production
+   * @param string|bool $plugin     Determines the base directory:
+   *  - (bool) false: Look in Project directory.
+   *  - (bool) true:  Look in directory for plugin $this->_plugin.
+   *  - (string):     Look in directory for the specified plugin.
+   *
+   * If $plugin is true, but $this->_plugin is not set, the result is the same
+   *  as if $plugin is false.
    *
    * @return string
    */
-  private function _getFixtureDir( $production = false )
+  private function _getFixtureDir( $production = false, $plugin = true )
   {
-    if( $this->_plugin )
+    if( $plugin === true )
+    {
+      $plugin = $this->_plugin;
+    }
+
+    if( $plugin )
     {
       $config =
         sfContext::getInstance()
           ->getConfiguration()
-          ->getPluginConfiguration($this->_plugin);
+          ->getPluginConfiguration($plugin);
 
       return sprintf(
         '%s/%s/fixtures',
