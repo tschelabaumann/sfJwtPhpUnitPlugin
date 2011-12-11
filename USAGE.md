@@ -1021,7 +1021,28 @@ class HelloTest extends Test_Case_Unit
 {
   protected function _setUp(  )
   {
+    /* Load sf_test_dir/fixtures/hello.yml. */
     $this->loadFixture('hello.yml');
+  }
+}
+</pre>
+
+### Production Fixtures
+
+Sometimes, it is necessary to load production data fixtures (located in
+  `sf_data_dir/fixtures`) during tests.  To load these data fixtures, call
+  `$this->loadProductionFixture()` instead, e.g.:
+
+<pre>
+# sf_test_dir/unit/Ticket.php
+
+&lt;?php
+class TicketTest extends Test_Case_Unit
+{
+  protected function _setUp(  )
+  {
+    /* Load sf_data_dir/fixtures/ticket_types.yml. */
+    $this->loadFixture('ticket_types.yml');
   }
 }
 </pre>
