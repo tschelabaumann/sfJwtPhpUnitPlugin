@@ -47,11 +47,14 @@ class Test_FixtureLoader
 
   /** Loads a fixture file.
    *
-   * @param string|string[] $fixture The name(s) of the fixture file(s)
+   * @param string|string[] $fixture  The name(s) of the fixture file(s)
    *  (e.g., test_data.yml).
-   * @param bool            $force   If true, the fixture will be loaded
+   * @param bool            $prod     Whether to load production fixtures
+   *  instead of test fixtures.
+   * @param string          $plugin   The name of the plugin to load fixtures
+   *  for.
+   * @param bool            $force    If true, the fixture will be loaded
    *  even if it has already been loaded.
-   * @param string          $basedir Alternate basedir to load fixture from.
    *
    * @return mixed Some fixture files can return a value.  If an array value is
    *  passed in, an array will be returned as:
@@ -60,26 +63,25 @@ class Test_FixtureLoader
    * If the fixture file was already loaded (and $force is false), loadFixture()
    *  will return false.
    */
-  public function loadFixture( $fixture, $force = false, $basedir = null )
+  public function loadFixture(
+    $fixture,
+    $prod     = false,
+    $plugin   = null,
+    $force    = false
+  )
   {
     if( is_array($fixture) )
     {
       $res = array();
       foreach( $fixture as $file )
       {
-        $res[$file] = $this->loadFixture($file, $force, $basedir);
+        $res[$file] = $this->loadFixture($file, $prod, $plugin, $force);
       }
       return $res;
     }
     else
     {
-      /* Validate $basedir. */
-      $basedir = (
-        is_null($basedir)
-          ? sfConfig::get('sf_fixture_dir')
-          : $basedir
-      );
-
+      $basedir = $this->getFixtureDir($prod, $plugin);
       if( ! is_dir($basedir) )
       {
         throw new InvalidArgumentException(sprintf(
@@ -87,10 +89,6 @@ class Test_FixtureLoader
             $basedir
         ));
       }
-
-      /* Normalize $basedir. */
-      $basedir =
-        rtrim(realpath($basedir), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 
       /* Check to see if this fixture has already been loaded. */
       if( $force or ! $this->isFixtureLoaded($basedir . $fixture) )
@@ -105,8 +103,8 @@ class Test_FixtureLoader
           ++$this->_depth;
 
           /** @var $Loader Test_FixtureLoader_Loader */
-          $Loader = new $class($this);
-          $res = $Loader->loadFixture($fixture, $basedir);
+          $Loader = new $class($this, $plugin);
+          $res = $Loader->load($fixture, $basedir);
 
           --$this->_depth;
         }
@@ -149,6 +147,37 @@ class Test_FixtureLoader
   {
     $this->_fixturesLoaded = array();
     return $this;
+  }
+
+  /** Returns the path to the fixture directory for this test case.
+   *
+   * @param bool    $production   Whether to load production fixtures.
+   * @param string  $plugin       Which plugin to load fixtures for.
+   *
+   * @return string
+   */
+  public function getFixtureDir( $production = false, $plugin = null )
+  {
+    if( $plugin )
+    {
+      $config =
+      sfContext::getInstance()
+      ->getConfiguration()
+      ->getPluginConfiguration($plugin);
+
+      return sprintf(
+        '%s/%s/fixtures/',
+        $config->getRootDir(),
+        ($production ? 'data' : 'test')
+      );
+    }
+    else
+    {
+      return sprintf(
+        '%s/fixtures/',
+        sfConfig::get($production ? 'sf_data_dir' : 'sf_test_dir')
+      );
+    }
   }
 
   /** Accessor for $_depth.

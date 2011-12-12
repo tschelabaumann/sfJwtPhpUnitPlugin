@@ -30,9 +30,6 @@
  */
 class Test_FixtureLoader_Loader_Php extends Test_FixtureLoader_Loader
 {
-  /** Used to share variables between fixture files. */
-  static protected $_vars = array();
-
   /** Loads and evaluates a fixture file.
    *
    * Note that the fixture file is loaded via include(), which means that $this
@@ -46,7 +43,8 @@ class Test_FixtureLoader_Loader_Php extends Test_FixtureLoader_Loader
   {
     $Harness = new Test_FixtureLoader_Loader_Php_Harness_Safe(
       $this->getParent(),
-      $file
+      $file,
+      $this->getPlugin()
     );
     return $Harness->execute();
   }

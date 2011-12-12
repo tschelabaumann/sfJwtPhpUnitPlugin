@@ -32,33 +32,65 @@ abstract class Test_FixtureLoader_Loader_Php_Harness extends Test_Harness
 {
   /* @access private so that they are not accessible to fixture files. */
   private
-    $_fixtureLoader;
+    $_fixtureLoader,
+    $_plugin;
 
   /** Init the class instance.
    *
    * @param Test_FixtureLoader  $FixtureLoader
    * @param string              $file
+   * @param string              $plugin
    */
-  public function __construct( Test_FixtureLoader $FixtureLoader, $file )
+  public function __construct(
+    Test_FixtureLoader $FixtureLoader,
+    $file,
+    $plugin
+  )
   {
     /* No, you can't run __construct() from within a fixture file! */
     if( ! $this->isExecuting() )
     {
       $this->_fixtureLoader = $FixtureLoader;
+      $this->_plugin        = $plugin;
+
       parent::__construct($file);
     }
   }
 
   /** Loads an additional fixture file.
    *
-   * @param string $file
-   * @param bool   $force
+   * @param string      $file
+   * @param bool        $force
+   * @param string|bool $plugin {@see Test_Case->loadFixture()}
    *
    * @return mixed
    */
-  public function loadFixture( $file, $force = false )
+  public function loadFixture( $file, $force = false, $plugin = true )
   {
-    return $this->_fixtureLoader->loadFixture($file, $force);
+    if( $plugin === true )
+    {
+      $plugin = $this->_plugin;
+    }
+
+    return $this->_fixtureLoader->loadFixture($file, false, $plugin, $force);
+  }
+
+  /** Loads a production fixture file.
+   *
+   * @param string      $file
+   * @param bool        $force
+   * @param string|bool $plugin {@see Test_Case->loadProductionFixture()}
+   *
+   * @return mixed
+   */
+  public function loadProductionFixture( $file, $force = false, $plugin = true )
+  {
+    if( $plugin === true )
+    {
+      $plugin = $this->_plugin;
+    }
+
+    return $this->_fixtureLoader->loadFixture($file, true, $plugin, $force);
   }
 
   /** Defines a constant if it is not already defined.

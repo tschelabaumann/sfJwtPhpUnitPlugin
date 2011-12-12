@@ -182,11 +182,12 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   protected function loadFixture( $fixture, $force = false, $plugin = true )
   {
-    return $this->_fixtureLoader->loadFixture(
-      $fixture,
-      $force,
-      $this->_getFixtureDir(false, $plugin)
-    );
+    if( $plugin === true )
+    {
+      $plugin = $this->_plugin;
+    }
+
+    return $this->_fixtureLoader->loadFixture($fixture, false, $plugin, $force);
   }
 
   /** Loads a production fixture into the database.
@@ -213,11 +214,12 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $plugin   = true
   )
   {
-    return $this->_fixtureLoader->loadFixture(
-      $fixture,
-      $force,
-      $this->_getFixtureDir(true, $plugin)
-    );
+    if( $plugin === true )
+    {
+      $plugin = $this->_plugin;
+    }
+
+    return $this->_fixtureLoader->loadFixture($fixture, true, $plugin, $force);
   }
 
   /** Flush the database and reload base fixtures.
@@ -329,7 +331,8 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     {
       /* Set custom sfConfig values here. */
       sfConfig::add(array(
-        'sf_fixture_dir'  => $this->_getFixtureDir()
+        'sf_fixture_dir'  =>
+          $this->_fixtureLoader->getFixtureDir(false, $this->_plugin)
       ));
 
       self::$_configs = sfConfig::getAll();
@@ -505,47 +508,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
           $current,
           self::REQUIRED_PHPUNIT_VERSION
       ));
-    }
-  }
-
-  /** Returns the path to the fixture directory for this test case.
-   *
-   * @param bool        $production
-   * @param string|bool $plugin     Determines the base directory:
-   *  - (bool) false: Look in Project directory.
-   *  - (bool) true:  Look in directory for plugin $this->_plugin.
-   *  - (string):     Look in directory for the specified plugin.
-   *
-   * If $plugin is true, but $this->_plugin is not set, the result is the same
-   *  as if $plugin is false.
-   *
-   * @return string
-   */
-  private function _getFixtureDir( $production = false, $plugin = true )
-  {
-    if( $plugin === true )
-    {
-      $plugin = $this->_plugin;
-    }
-
-    if( $plugin )
-    {
-      $config =
-        sfContext::getInstance()
-          ->getConfiguration()
-          ->getPluginConfiguration($plugin);
-
-      return sprintf(
-        '%s/%s/fixtures',
-          $config->getRootDir(),
-          ($production ? 'data' : 'test')
-      );
-    }
-    else
-    {
-      return (
-        sfConfig::get($production ? 'sf_data_dir' : 'sf_test_dir') . '/fixtures'
-      );
     }
   }
 

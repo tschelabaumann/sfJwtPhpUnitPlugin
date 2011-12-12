@@ -31,15 +31,18 @@
 abstract class Test_FixtureLoader_Loader
 {
   private
-    $_parent;
+    $_parent,
+    $_plugin;
 
   /** Init the class instance.
    *
-   * @param Test_FixtureLoader $Parent
+   * @param Test_FixtureLoader  $Parent
+   * @param string              $plugin
    */
-  public function __construct( Test_FixtureLoader $Parent )
+  public function __construct( Test_FixtureLoader $Parent, $plugin )
   {
     $this->_parent = $Parent;
+    $this->_plugin = $plugin;
   }
 
   /** Accessor for $_parent.
@@ -51,6 +54,15 @@ abstract class Test_FixtureLoader_Loader
     return $this->_parent;
   }
 
+  /** Accessor for $_plugin.
+   *
+   * @return string The plugin that this fixture is associated with.
+   */
+  public function getPlugin(  )
+  {
+    return $this->_plugin;
+  }
+
   /** Loads and evaluates a fixture file.
    *
    * @param string $fixture
@@ -58,7 +70,7 @@ abstract class Test_FixtureLoader_Loader
    *
    * @return mixed
    */
-  public function loadFixture( $fixture, $basedir )
+  public function load( $fixture, $basedir )
   {
     $target = realpath($basedir . $fixture);
 
