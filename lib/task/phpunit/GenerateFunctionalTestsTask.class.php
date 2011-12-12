@@ -132,12 +132,6 @@ END;
       ));
     }
 
-    /** @todo Check to see if this module is defined by a plugin.
-     *
-     * Per #27, plugin-specific functional tests are not feasible in Symfony
-     *  1.4.
-     */
-
     /* Determine target file path. */
     $path   = $this->_genPath(array($app, $module, $action . '.php'), false);
     $target = $this->_getBaseDir('test', array('functional')) . $path;
