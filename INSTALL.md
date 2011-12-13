@@ -2,7 +2,7 @@ To install the plugin into a Symfony project:
 
 1. Install the plugin files into `plugins/`.
 2. Install PHPUnit 3.6 if necessary.  Make sure it is accessible from PHP's
-    include_path.
+    `include_path`.
 3. Add a `test` entry to `config/databases.yml` or disable `use_database` in
   `apps/*/config/settings.yml`.
 4. Add an `upload_dir` entry for the `test` environment in `settings.yml` for
