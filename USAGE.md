@@ -1040,36 +1040,8 @@ class HelloTest extends Test_Case_Unit
 {
   protected function _setUp(  )
   {
-    /* Load sf_plugin_dir/myOtherPlugin/test/fixtures/hello.yml. */
+    /* Load sf_plugins_dir/myOtherPlugin/test/fixtures/hello.yml. */
     $this->loadFixture('hello.yml', false, 'myOtherPlugin');
-  }
-}
-</pre>
-
-### `loadFixture()` and `$_plugin`
-
-Note that if your test case defines `$_plugin` (see `$_plugin` below), it will
-  load test fixtures from that plugin's fixture directory by default.
-
-In this case, if you need to load a project-scope fixture, you will need to
-  specify `null` as the value for the `$plugin` parameter:
-
-<pre>
-# sf_plugin_dir/myHelloPlugin/test/unit/Hello.php
-
-&lt;?php
-class HelloTest extends Test_Case_Unit
-{
-  protected
-    $_plugin = 'myHelloPlugin';
-
-  protected function _setUp(  )
-  {
-    /* Load sf_plugin_dir/myHelloPlugin/test/fixtures/hello.yml. */
-    $this->loadFixture('hello.yml');
-
-    /* Load sf_test_dir/fixtures/hello.yml. */
-    $this->loadFixture('hello.yml', false, null);
   }
 }
 </pre>
@@ -1107,37 +1079,8 @@ class TicketTest extends Test_Case_Unit
 {
   protected function _setUp(  )
   {
-    /* Load sf_plugin_dir/myOtherPlugin/data/fixtures/ticket_types.yml. */
+    /* Load sf_plugins_dir/myOtherPlugin/data/fixtures/ticket_types.yml. */
     $this->loadProductionFixture('ticket_types.yml', false, 'myOtherPlugin');
-  }
-}
-</pre>
-
-### `loadProductionFixture()` and `$_plugin`
-
-As with `loadFixture()`, if your test case specifies a value for `$_plugin`, it
-  will look for production fixtures in that plugin's `data` directory by
-  default.
-
-In this case, if you need to load a project-scope production fixture, you will
-  need to specify `null` as the value for the `$plugin` parameter:
-
-<pre>
-# sf_plugin_dir/myAwesomePlugin/test/unit/Ticket.php
-
-&lt;?php
-class TicketTest extends Test_Case_Unit
-{
-  protected
-    $_plugin = 'myAwesomePlugin';
-
-  protected function _setUp(  )
-  {
-    /* Load sf_plugin_dir/myAwesomePlugin/data/fixtures/ticket_types.yml. */
-    $this->loadProductionFixture('ticket_types.yml');
-
-    /* Load sf_data_dir/fixtures/ticket_types.yml. */
-    $this->loadProductionFixture('ticket_types.yml', false, null);
   }
 }
 </pre>
@@ -1627,6 +1570,94 @@ class backend_config_SetTest extends Test_Case_Functional
 Test_Case::setDefaultApplicationName('appname');
 </pre>
 
+# Specifying the Plugin Name
+It is now possible to contain all unit tests and fixtures for a plugin with that
+  plugin's directory on the filesystem (functional tests must still be located
+  in the project `sf_test_dir/test/functional` directory).
+
+## Plugin Unit Tests
+### Files
+Store plugin-specific unit tests in `sf_plugins_dir/plugin_name/test/unit`,
+  where `plugin_name` is the name of the plugin the test cases belong to.
+
+### Specifying the Plugin Name
+In your test case, set the `$_plugin` instance property to the name of the
+  plugin:
+
+<pre>
+&lt;?php
+# sf_plugins_dir/myHelloPlugin/test/unit/lib/Hello.class.php
+
+class HelloTest extends Test_Case_Unit
+{
+  protected
+    $_plugin = 'myHelloPlugin';
+}
+</pre>
+
+### Caveats
+#### Loading Fixtures
+By default, `loadFixture()` and `loadProductionFixture()` will look in the
+  plugin's fixture directory, not the project's.  If you need to load a project
+  fixture from a plugin test case, you will need to specify `null` as the third
+  parameter to `loadFixture()` and/or `loadProductionFixture()`:
+
+<pre>
+# sf_plugins_dir/myHelloPlugin/test/unit/Hello.php
+
+&lt;?php
+class HelloTest extends Test_Case_Unit
+{
+  protected
+    $_plugin = 'myHelloPlugin';
+
+  protected function _setUp(  )
+  {
+    // Load sf_plugins_dir/myHelloPlugin/test/fixtures/hello.yml.
+    $this->loadFixture('hello.yml');
+
+    // Load sf_test_dir/fixtures/hello.yml.
+    $this->loadFixture('hello.yml', false, null);
+
+    // Load sf_plugins_dir/myHelloPlugin/data/fixtures/hello.yml.
+    $this->loadProductionFixture('hello.yml');
+
+    // Load sf_data_dir/fixtures/hello.yml.
+    $this->loadProductionFixture('hello.yml', false, null);
+  }
+}
+</pre>
+
+## Plugin Fixtures
+### Files
+Store plugin-specific test fixtures in
+  `sf_plugins_dir/plugin_name/test/fixtures`, where `plugin_name` is the name of
+  the plugin the test fixtures belong to.
+
+### Caveats
+#### Loading Other Fixtures
+By default, `loadFixture()` and `loadProductionFixture()` will look in the
+  plugin's fixture directory, not the project's.  If you need to load a project
+  fixture from a plugin test case, you will need to specify `null` as the third
+  parameter to `loadFixture()` and/or `loadProductionFixture()`:
+
+<pre>
+# sf_plugins_dir/myAwesomePlugin/test/fixtures/categories.php
+
+&lt;?php
+// Load sf_plugins_dir/myAwesomePlugin/test/fixtures/category_types.php.
+$this->loadFixture('category_types.php');
+
+// Load sf_test_dir/fixtures/category_types.php.
+$this->loadFixture('category_types.php', false, null);
+
+// Load sf_plugins_dir/myAwesomePlugin/data/fixtures/category_types.yml.
+$this->loadProductionFixture('category_types.yml');
+
+// Load sf_data_dir/fixtures/category_types.yml.
+$this->loadProductionFixture('category_types.yml', false, null);
+</pre>
+
 # Running Tests
 JPUP includes a number of Symfony tasks that you can use to run your tests:
 
@@ -1640,11 +1671,12 @@ Note:  JPUP is not compatible with Symfony's built-in test tasks.  Do not expect
 ### phpunit:all
 <pre>
 Usage:
- symfony phpunit:all [-f|--filter="..."] [-g|--groups="..."] [-v|--verbose]
+ symfony phpunit:all [-f|--filter="..."] [-g|--groups="..."] [-p|--plugin="..."] [-v|--verbose]
 
 Options:
  --filter   (-f) Regex used to filter tests; only tests matching the filter will be run.
  --groups   (-g) Only run tests from the specified group(s).
+ --plugin   (-p) Run tests for the specified plugin.
  --verbose  (-v) If set, PHPUnit will output additional information (e.g. test names).
 
 Description:
@@ -1658,14 +1690,15 @@ Description:
 ### phpunit:unit
 <pre>
 Usage:
- symfony phpunit:unit [-f|--filter="..."] [-g|--groups="..."] [-v|--verbose] [path1] ... [pathN]
+ symfony phpunit:unit [-f|--filter="..."] [-g|--groups="..."] [-p|--plugin="..."] [-v|--verbose] [path1] ... [pathN]
 
 Arguments:
- path       Specify the relative paths to specific test files and/or directories under sf_test_dir/unit.  If no arguments are provided, all unit tests will be run.
+ path       Specify the relative paths to specific test files and/or directories under sf_root_dir/test/unit.  If no arguments are provided, all unit tests will be run.
 
 Options:
  --filter   (-f) Regex used to filter tests; only tests matching the filter will be run.
  --groups   (-g) Only run tests from the specified group(s).
+ --plugin   (-p) Run tests for the specified plugin.
  --verbose  (-v) If set, PHPUnit will output additional information (e.g. test names).
 
 Description:
@@ -1690,14 +1723,15 @@ Description:
 ### phpunit:functional
 <pre>
 Usage:
- symfony phpunit:functional [-f|--filter="..."] [-g|--groups="..."] [-v|--verbose] [path1] ... [pathN]
+ symfony phpunit:functional [-f|--filter="..."] [-g|--groups="..."] [-p|--plugin="..."] [-v|--verbose] [path1] ... [pathN]
 
 Arguments:
- path       Specify the relative paths to specific test files and/or directories under sf_test_dir/functional.  If no arguments are provided, all functional tests will be run.
+ path       Specify the relative paths to specific test files and/or directories under sf_root_dir/test/functional.  If no arguments are provided, all functional tests will be run.
 
 Options:
  --filter   (-f) Regex used to filter tests; only tests matching the filter will be run.
  --groups   (-g) Only run tests from the specified group(s).
+ --plugin   (-p) Run tests for the specified plugin.
  --verbose  (-v) If set, PHPUnit will output additional information (e.g. test names).
 
 Description:
