@@ -1027,7 +1027,54 @@ class HelloTest extends Test_Case_Unit
 }
 </pre>
 
-### Production Fixtures
+### Loading Fixtures for Other Plugins
+
+To load a fixture for another plugin, pass the plugin's name as the third
+  parameter to `loadFixture()`:
+
+<pre>
+# sf_test_dir/unit/Hello.php
+
+&lt;?php
+class HelloTest extends Test_Case_Unit
+{
+  protected function _setUp(  )
+  {
+    /* Load sf_plugin_dir/myOtherPlugin/test/fixtures/hello.yml. */
+    $this->loadFixture('hello.yml', false, 'myOtherPlugin');
+  }
+}
+</pre>
+
+### `loadFixture()` and `$_plugin`
+
+Note that if your test case defines `$_plugin` (see `$_plugin` below), it will
+  load test fixtures from that plugin's fixture directory by default.
+
+In this case, if you need to load a project-scope fixture, you will need to
+  specify `null` as the value for the `$plugin` parameter:
+
+<pre>
+# sf_plugin_dir/myHelloPlugin/test/unit/Hello.php
+
+&lt;?php
+class HelloTest extends Test_Case_Unit
+{
+  protected
+    $_plugin = 'myHelloPlugin';
+
+  protected function _setUp(  )
+  {
+    /* Load sf_plugin_dir/myHelloPlugin/test/fixtures/hello.yml. */
+    $this->loadFixture('hello.yml');
+
+    /* Load sf_test_dir/fixtures/hello.yml. */
+    $this->loadFixture('hello.yml', false, null);
+  }
+}
+</pre>
+
+## Loading Production Fixtures
 
 Sometimes, it is necessary to load production data fixtures (located in
   `sf_data_dir/fixtures`) during tests.  To load these data fixtures, call
@@ -1043,6 +1090,54 @@ class TicketTest extends Test_Case_Unit
   {
     /* Load sf_data_dir/fixtures/ticket_types.yml. */
     $this->loadProductionFixture('ticket_types.yml');
+  }
+}
+</pre>
+
+### Production Fixtures for Other Plugins
+
+`loadProductionFixture()` can also be directed to load production fixtures for
+  other plugins just like `loadFixture()`:
+
+<pre>
+# sf_test_dir/unit/Ticket.php
+
+&lt;?php
+class TicketTest extends Test_Case_Unit
+{
+  protected function _setUp(  )
+  {
+    /* Load sf_plugin_dir/myOtherPlugin/data/fixtures/ticket_types.yml. */
+    $this->loadProductionFixture('ticket_types.yml', false, 'myOtherPlugin');
+  }
+}
+</pre>
+
+### `loadProductionFixture()` and `$_plugin`
+
+As with `loadFixture()`, if your test case specifies a value for `$_plugin`, it
+  will look for production fixtures in that plugin's `data` directory by
+  default.
+
+In this case, if you need to load a project-scope production fixture, you will
+  need to specify `null` as the value for the `$plugin` parameter:
+
+<pre>
+# sf_plugin_dir/myAwesomePlugin/test/unit/Ticket.php
+
+&lt;?php
+class TicketTest extends Test_Case_Unit
+{
+  protected
+    $_plugin = 'myAwesomePlugin';
+
+  protected function _setUp(  )
+  {
+    /* Load sf_plugin_dir/myAwesomePlugin/data/fixtures/ticket_types.yml. */
+    $this->loadProductionFixture('ticket_types.yml');
+
+    /* Load sf_data_dir/fixtures/ticket_types.yml. */
+    $this->loadProductionFixture('ticket_types.yml', false, null);
   }
 }
 </pre>
@@ -1149,14 +1244,18 @@ A PHP fixture file can contain any PHP code.
 
 ##### Loading Other Fixtures
 You can load other fixtures from a PHP fixture file by calling
-  `$this->loadFixture()` just like you would from a test case:
+  `$this->loadFixture()` and/or `$this->loadProductionFixture()` just like you
+  would from a test case:
 
 <pre>
 # sf_test_dir/fixtures/articles.php
 
 &lt;?php
-$this->loadFixture('sites.yml');
+$this->loadProductionFixture('sites.yml');
 $this->loadFixture('categories.php');
+
+// Load fixture from another plugin:
+$this->loadFixture('entity_types.php', false, 'myOtherPlugin');
 </pre>
 
 ##### Sharing Variables
