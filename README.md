@@ -7,9 +7,6 @@ Please note that 1.0.8 introduces some changes that are not backwards-compatible
   fixtures in `sf_test_dir/fixtures/_global.*`, you will need to load them
   manually in your test cases.
 
-- The signatures of `Test_Case->loadFixture()` and
-  `Test_Case->loadProductionFixture()` have changed.
-
 - `Test_Case->loadPluginFixture()` and
   `Test_Case->loadPluginProductionFixture()` have been removed (they were
   introduced in 1.0.7 and immediately marked for deprecation, so you probably
