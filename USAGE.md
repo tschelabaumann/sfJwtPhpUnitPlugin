@@ -1092,13 +1092,6 @@ class TicketTest extends Test_Case_Unit
     * Consider leveraging `_setUp()` for fixtures that must be loaded for every
       test in a test case.
 
-* All test fixtures must be located in `sf_test_dir/fixtures`.  The fixture
-  loader will not load any fixture files outside this directory.
-
-  Note that this means that you cannot load production data fixtures (located in
-  `sf_root_dir/data/fixtures`) in your test cases.  This is intentional; JPUP is
-  designed to test code, not data.
-
 * By default, `loadFixture()` will not load a fixture more than once during a
   test.  There is a way to force it to load a fixture multiple times (but be
   wary of infinite loops!).  See the API documentation for more information.
