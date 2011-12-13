@@ -34,8 +34,8 @@
  */
 abstract class Test_Case_Functional extends Test_Case
 {
-  protected
-    $_browser;
+  /** @var Test_Browser */
+  protected $_browser;
 
   /** Pre-test initialization.
    *
