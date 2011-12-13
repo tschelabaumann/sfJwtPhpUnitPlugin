@@ -1,3 +1,20 @@
+# 1.0.8 Update
+
+Please note that 1.0.8 introduces some changes that are not backwards-compatible
+  with 1.0.7!
+
+- JPUP 1.0.8 no longer auto-loads global test fixtures.  If you have defined any
+  fixtures in `sf_test_dir/fixtures/_global.*`, you will need to load them
+  manually in your test cases.
+
+- The signatures of `Test_Case->loadFixture()` and
+  `Test_Case->loadProductionFixture()` have changed.
+
+- `Test_Case->loadPluginFixture()` and
+  `Test_Case->loadPluginProductionFixture()` have been removed (they were
+  introduced in 1.0.7 and immediately marked for deprecation, so you probably
+  didn't even notice).
+
 # sfJwtPhpUnitPlugin
 ## About
 sfJwtPhpUnitPlugin ("JPUP") was developed at [JWT](http://jwt.com) to assist in
