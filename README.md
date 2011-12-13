@@ -15,7 +15,7 @@ sfJwtPhpUnitPlugin ("JPUP") was developed at [JWT](http://jwt.com) to assist in
 JPUP boasts robust database handling (modeled loosely after
   [Django's test framework](http://docs.djangoproject.com/en/dev/topics/testing/#s-the-test-database)
   and [sfPhpUnitPlugin](https://www.hostedredmine.com/projects/sfphpunitplugin/wiki/1013#Fixtures)),
-  unlimited extensibility over Symfony's sfBrowser class and user-friendly tasks
+  unlimited extensibility over Symfony's `sfBrowser` class and user-friendly tasks
   for running collections of tests.
 
 We found this plugin to be exceptionally useful for testing database-driven
