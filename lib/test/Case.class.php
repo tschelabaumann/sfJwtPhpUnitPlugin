@@ -237,7 +237,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
   {
     if( sfConfig::get('sf_use_database') )
     {
-      $this->verifyTestDatabaseConnection();
+      $this->_assertTestDatabaseConnection();
 
       $db = $this->getDatabaseConnection();
 
@@ -301,11 +301,11 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
   /** Removes anything in the uploads directory.
    *
-   * @return Test_Case($this)
+   * @return Test_Case $this
    */
   public function flushUploads(  )
   {
-    $this->validateUploadsDir();
+    $this->_assertTestUploadsDir();
 
     $Filesystem = new sfFilesystem();
     $Filesystem->remove(
@@ -318,7 +318,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
   /** Restores all sfConfig values to their state before the current test was
    *   run.
    *
-   * @return Test_Case($this)
+   * @return Test_Case $this
    */
   public function flushConfigs(  )
   {
@@ -360,7 +360,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
   /** Returns the name of the Doctrine database.
    *
-   * @return string(dbname)
+   * @return string
    */
   protected function getDatabaseName(  )
   {
@@ -378,120 +378,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     /** @noinspection PhpParamsInspection */
     $info = $db->getManager()->parsePdoDsn($dsn);
     return (isset($info['dbname']) ? $info['dbname'] : null);
-  }
-
-  /** Verifies that we are not connected to the production database.
-   *
-   * @param bool $force
-   *
-   * @return void Triggers an error if our database connection is unsafe for
-   *  testing.
-   */
-  protected function verifyTestDatabaseConnection( $force = false )
-  {
-    if( ! self::$_dbNameCheck or $force )
-    {
-      $this->_assertTestEnvironment();
-
-      $config = sfConfigHandler::replaceConstants(sfYaml::load(
-        sfConfig::get('sf_root_dir') . '/config/databases.yml'
-      ));
-
-      /* Check to see if a test database has been specified. */
-      if( empty($config['test']['doctrine']['param']['dsn']) )
-      {
-        self::_halt('Please specify a "test" database in databases.yml.');
-      }
-
-      $test = $config['test']['doctrine']['param']['dsn'];
-
-      $prod =
-        isset($config['prod']['doctrine']['param']['dsn'])
-          ? $config['prod']['doctrine']['param']['dsn']
-          : $config['all']['doctrine']['param']['dsn'];
-
-      /* Check to see if a *separate* test database has been specified. */
-      if( $prod == $test )
-      {
-        self::_halt('Please specify a *separate* "test" database in databases.yml.');
-      }
-
-      /* Check to see that the active connection is using the correct DSN. */
-      if( $this->getDatabaseConnection()->getOption('dsn') != $test )
-      {
-        self::_halt('Doctrine connection is not using test DSN!');
-      }
-
-      self::$_dbNameCheck = true;
-    }
-  }
-
-  /** Validates the uploads directory to ensure we're not going to inadvertently
-   *   put test uploads in the wrong place and/or delete production files.
-   *
-   * @param bool $force
-   *
-   * @return string path to uploads directory.
-   */
-  protected function validateUploadsDir( $force = false )
-  {
-    if( ! self::$_uploadsDirCheck or $force )
-    {
-      $this->_assertTestEnvironment();
-
-      $config = sfConfigHandler::replaceConstants(sfYaml::load(
-        sfConfig::get('sf_app_dir') . '/config/settings.yml'
-      ));
-
-      /* Determine whether a test uploads directory has been specified. */
-      if( ! isset($config['test']['.settings']['upload_dir']) )
-      {
-        self::_halt('Please specify a "test" value for sf_upload_dir in settings.yml.');
-      }
-
-      $test = $config['test']['.settings']['upload_dir'];
-
-      /* Make double-sure that we're actually using the test uploads dir. */
-      if( sfConfig::get('sf_upload_dir') != $test )
-      {
-        self::_halt('Symfony is not using the test upload dir setting.  Try symfony cc.');
-      }
-
-      /* Determine whether a the test uploads directory is different than the
-       *  production one.
-       */
-      if( isset($config['prod']['.settings']['upload_dir']) )
-      {
-        $prod = $config['prod']['.settings']['upload_dir'];
-      }
-      elseif( isset($config['all']['.settings']['upload_dir']) )
-      {
-        $prod = $config['all']['.settings']['upload_dir'];
-      }
-      else
-      {
-        /* Get the default value:  no good way to do this in Symfony 1.4. */
-        $prod = sfConfig::get('sf_web_dir') . DIRECTORY_SEPARATOR . 'uploads';
-      }
-
-      if( $prod == $test )
-      {
-        self::_halt('Please specify a *separate* "test" value for sf_upload_dir in settings.yml.');
-      }
-
-      /* Check the directory itself to make sure it's valid. */
-      if( ! is_dir($test) )
-      {
-        self::_halt('Test upload directory (%s) does not exist or is not a directory.', $test);
-      }
-
-      if( ! is_writable($test) )
-      {
-        self::_halt('Test upload directory (%s) is not writable.', $test);
-      }
-
-      self::$_uploadsDirCheck = true;
-    }
   }
 
   /** Checks to make sure we have the correct version of PHPUnit installed.
@@ -559,6 +445,120 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         (E_ALL | E_STRICT),
         'E_ALL | E_STRICT' // Split out for easy editing if necessary.
       );
+    }
+  }
+
+  /** Verifies that we are not connected to the production database.
+   *
+   * @param bool $force
+   *
+   * @return void Triggers an error if our database connection is unsafe for
+   *  testing.
+   */
+  private function _assertTestDatabaseConnection( $force = false )
+  {
+    if( ! self::$_dbNameCheck or $force )
+    {
+      $this->_assertTestEnvironment();
+
+      $config = sfConfigHandler::replaceConstants(sfYaml::load(
+        sfConfig::get('sf_root_dir') . '/config/databases.yml'
+      ));
+
+      /* Check to see if a test database has been specified. */
+      if( empty($config['test']['doctrine']['param']['dsn']) )
+      {
+        self::_halt('Please specify a "test" database in databases.yml.');
+      }
+
+      $test = $config['test']['doctrine']['param']['dsn'];
+
+      $prod =
+        isset($config['prod']['doctrine']['param']['dsn'])
+          ? $config['prod']['doctrine']['param']['dsn']
+          : $config['all']['doctrine']['param']['dsn'];
+
+      /* Check to see if a *separate* test database has been specified. */
+      if( $prod == $test )
+      {
+        self::_halt('Please specify a *separate* "test" database in databases.yml.');
+      }
+
+      /* Check to see that the active connection is using the correct DSN. */
+      if( $this->getDatabaseConnection()->getOption('dsn') != $test )
+      {
+        self::_halt('Doctrine connection is not using test DSN!');
+      }
+
+      self::$_dbNameCheck = true;
+    }
+  }
+
+  /** Validates the uploads directory to ensure we're not going to inadvertently
+   *   put test uploads in the wrong place and/or delete production files.
+   *
+   * @param bool $force
+   *
+   * @return void
+   */
+  protected function _assertTestUploadsDir( $force = false )
+  {
+    if( ! self::$_uploadsDirCheck or $force )
+    {
+      $this->_assertTestEnvironment();
+
+      $config = sfConfigHandler::replaceConstants(sfYaml::load(
+        sfConfig::get('sf_app_dir') . '/config/settings.yml'
+      ));
+
+      /* Determine whether a test uploads directory has been specified. */
+      if( ! isset($config['test']['.settings']['upload_dir']) )
+      {
+        self::_halt('Please specify a "test" value for sf_upload_dir in settings.yml.');
+      }
+
+      $test = $config['test']['.settings']['upload_dir'];
+
+      /* Make double-sure that we're actually using the test uploads dir. */
+      if( sfConfig::get('sf_upload_dir') != $test )
+      {
+        self::_halt('Symfony is not using the test upload dir setting.  Try symfony cc.');
+      }
+
+      /* Determine whether a the test uploads directory is different than the
+       *  production one.
+       */
+      if( isset($config['prod']['.settings']['upload_dir']) )
+      {
+        $prod = $config['prod']['.settings']['upload_dir'];
+      }
+      elseif( isset($config['all']['.settings']['upload_dir']) )
+      {
+        $prod = $config['all']['.settings']['upload_dir'];
+      }
+      else
+      {
+        /* Get the default value:  no good way to do this in Symfony 1.4. */
+        $prod = sfConfig::get('sf_web_dir') . DIRECTORY_SEPARATOR . 'uploads';
+      }
+
+      if( $prod == $test )
+      {
+        self::_halt('Please specify a *separate* "test" value for sf_upload_dir in settings.yml.');
+      }
+
+      /* Check the directory itself to make sure it's valid. */
+      if( ! is_dir($test) )
+      {
+        self::_halt('Test upload directory (%s) does not exist or is not a directory.', $test);
+      }
+
+      if( ! is_writable($test) )
+      {
+        self::_halt('Test upload directory (%s) is not writable.', $test);
+      }
+
+      self::$_uploadsDirCheck = true;
     }
   }
 
