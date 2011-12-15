@@ -230,6 +230,54 @@ Note that JPUP automatically populates the `@package`, `@subpackage` and
 ./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
 </pre>
 
+### Testing Symfony Tasks
+To execute a symfony task in a test, call `$this->runTask()`:
+
+<pre>
+# sf_test_dir/unit/lib/task/HelloTask.class.php
+
+&lt;?php
+/** Unit tests for HelloTask.
+ *
+ * @author PHX
+ *
+ * @package myproject
+ * @subpackage test.lib
+ */
+class HelloTaskTest extends Test_Case_Unit
+{
+  protected
+    $_name  = 'hello:user';
+
+  public function testExecuteTask(  )
+  {
+    $user = 'Joey';
+    $bang = '!';
+
+    $status = $this->runTask(
+      $this->_name,
+      array($user),
+      array(
+        'punctuation' => $bang
+    );
+    $this->assertEquals(0, $status, 'Expected task to complete successfully.');
+  }
+}
+</pre>
+
+`runTask()` takes up to three parameters:
+
+- The name of the task (required).
+- Array of arguments (optional).
+- Array of options (optional).
+
+`runTask()` returns an integer status code, which is the status code that would
+  be reported to the shell were this task run via the `symfony` command-line
+  interface.
+
+- Note that at this time there is no way to capture output from the task
+  execution.
+
 ## Writing Functional Tests
 Functional tests are very similar to unit tests as described above, but you also
   have access to `$this->_browser` which is an instance of a modified version of
