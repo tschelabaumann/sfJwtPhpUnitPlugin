@@ -63,54 +63,52 @@ Writing a unit test for JPUP is very similar to writing [test cases for
 
 Here is an example of what a unit test class looks like:
 
-<pre>
-# sf_test_dir/unit/lib/Widget/WidgetService.class.php
+    # sf_test_dir/unit/lib/Widget/WidgetService.class.php
 
-&lt;?php
-class WidgetServiceTest extends Test_Case_Unit
-{
-  private
-    /** @var WidgetService_Http_Client_Mock */
-    $_client;
+    <?php
+    class WidgetServiceTest extends Test_Case_Unit
+    {
+      private
+        /** @var WidgetService_Http_Client_Mock */
+        $_client;
 
-  protected function _setUp(  )
-  {
-    /* Inject mock HTTP adapter so that we can simulate/control Widget
-     *  Service responses.
-     */
-    $this->_client = new WidgetService_Http_Client_Mock();
-    WidgetService::setHttpClient($this->_client);
-  }
+      protected function _setUp(  )
+      {
+        /* Inject mock HTTP adapter so that we can simulate/control Widget
+         *  Service responses.
+         */
+        $this->_client = new WidgetService_Http_Client_Mock();
+        WidgetService::setHttpClient($this->_client);
+      }
 
-  public function testGetNumberOfLikes(  )
-  {
-    $like_count   = '25';
-    $object_type  = 'page';
-    $object_id    = '123';
+      public function testGetNumberOfLikes(  )
+      {
+        $like_count   = '25';
+        $object_type  = 'page';
+        $object_id    = '123';
 
-    /* Seed the response from the Widget server. */
-    $this->_client->seed(
-      sprintf(
-        '/likes/count?object_type=%s&object_id=%d',
-          $object_type,
-          $object_id
-      ),
+        /* Seed the response from the Widget server. */
+        $this->_client->seed(
+          sprintf(
+            '/likes/count?object_type=%s&object_id=%d',
+              $object_type,
+              $object_id
+          ),
 
-      json_encode(array(
-        'status'  => 'OK',
-        'likes'   => $like_count
-      ))
-    );
+          json_encode(array(
+            'status'  => 'OK',
+            'likes'   => $like_count
+          ))
+        );
 
-    /* Execute the API method and check the result. */
-    $this->assertEquals(
-      $like_count,
-      WidgetService::getNumberOfLikes($object_type, $object_id),
-      'Expected correct number of likes returned.'
-    );
-  }
-}
-</pre>
+        /* Execute the API method and check the result. */
+        $this->assertEquals(
+          $like_count,
+          WidgetService::getNumberOfLikes($object_type, $object_id),
+          'Expected correct number of likes returned.'
+        );
+      }
+    }
 
 ### Generating Unit Tests Automatically
 JPUP comes packaged with a Symfony task named `phpunit:generate-unit` to build
@@ -123,43 +121,39 @@ To use `phpunit:generate-unit`, you must first create the class skeleton, as the
 
 For example, suppose you wanted to create a test case for this class:
 
-<pre>
-# sf_lib_dir/HelloWorld.class.php
+    # sf_lib_dir/HelloWorld.class.php
 
-&lt;?php
-/** My first PHP class!
- *
- * @package myproject
- * @subpackage helloworld
- */
-class HelloWorld
-{
-  /** Returns everyone's favorite phrase.
-   *
-   * @return string
-   */
-  public function getString(  )
-  {
-    return 'Hello, World!';
-  }
+    <?php
+    /** My first PHP class!
+     *
+     * @package myproject
+     * @subpackage helloworld
+     */
+    class HelloWorld
+    {
+      /** Returns everyone's favorite phrase.
+       *
+       * @return string
+       */
+      public function getString(  )
+      {
+        return 'Hello, World!';
+      }
 
-  /** Returns a generic string representation of the object.
-   *
-   * @return string
-   */
-  public function __toString(  )
-  {
-    return $this->getString();
-  }
-}
-</pre>
+      /** Returns a generic string representation of the object.
+       *
+       * @return string
+       */
+      public function __toString(  )
+      {
+        return $this->getString();
+      }
+    }
 
 To build a skeleton test case for the `HelloWorld` class as defined in the above
   example, execute the following command:
 
-<pre>
-./symfony phpunit:generate-unit HelloWorld
-</pre>
+    ./symfony phpunit:generate-unit HelloWorld
 
 Note that you must pass the **class name** to the task.  This is a requirement
   to avoid ambiguity when a class file contains multiple class definitions.
@@ -176,59 +170,101 @@ Note that you must pass the **class name** to the task.  This is a requirement
 In the example above, the test case file will be created at
   `sf_test_dir/unit/lib/HelloWorld.class.php` that looks something like this:
 
-<pre>
-# sf_test_dir/unit/lib/HelloWorld.class.php
+    # sf_test_dir/unit/lib/HelloWorld.class.php
 
-&lt;?php
-/** Unit tests for HelloWorld.
- *
- * @author PHX
- *
- * @package myproject
- * @subpackage test.helloworld
- */
-class HelloWorldTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-  }
+    <?php
+    /** Unit tests for HelloWorld.
+     *
+     * @author PHX
+     *
+     * @package myproject
+     * @subpackage test.helloworld
+     */
+    class HelloWorldTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+      }
 
-  public function testGetString(  )
-  {
-    $this->markTestIncomplete('Not implemented yet.');
-  }
-}
-</pre>
+      public function testGetString(  )
+      {
+        $this->markTestIncomplete('Not implemented yet.');
+      }
+    }
 
 Note that JPUP automatically populates the `@package`, `@subpackage` and
   `@author` phpdoc tags from the class docblock, and it creates skeleton tests
   for any public, non-magic methods it finds in the class.
 
 * If the class does not have a `@package` tag, JPUP will try to use the name of
-    the project as defined in `sf_config_dir/properties.ini`.
+  the project as defined in `sf_config_dir/properties.ini`.
 
 * If the class does not have a `@subpackage` tag, JPUP will try to guess one
-    based on the class file's location in the project's directory structure.
+  based on the class file's location in the project's directory structure.
 
 * If the class does not have an `@author` tag, JPUP will try to use the name of
-    the project author as defined in `sf_config_dir/properties.ini`.
+  the project author as defined in `sf_config_dir/properties.ini`.
 
 * The template for the skeleton test case is located in
-    `sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/unit.php`.
+  `sf_root_dir/plugins/sfJwtPhpUnitPlugin/lib/task/phpunit/skeleton/unit.php`.
 
-    If desired, you can create your own template.  JPUP will first check for a
-      skeleton file at `sf_data_dir/skeleton/phpunit/unit.php`.
+  If desired, you can create your own template.  JPUP will first check for a
+  skeleton file at `sf_data_dir/skeleton/phpunit/unit.php`.
 
 * You may customize the values of any tokens, such as the package or subpackage
-    names (or any additional tokens in your custom skeleton file) by passing
-    `--token` arguments to the task.
+  names (or any additional tokens in your custom skeleton file) by passing
+  `--token` arguments to the task.
 
   For example, to change the `@package` of the test case to "MyAwesomeProject",
-    you would invoke the task like this:
+  you would invoke the task like this:
 
-<pre>
-./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
-</pre>
+        ./symfony phpunit:generate-unit --token='package:MyAwesomeProject' HelloWorld
+
+### Testing Symfony Tasks
+To execute a symfony task in a test, call `$this->runTask()`:
+
+    # sf_test_dir/unit/lib/task/HelloTask.class.php
+
+    <?php
+    /** Unit tests for HelloTask.
+     *
+     * @author PHX
+     *
+     * @package myproject
+     * @subpackage test.lib
+     */
+    class HelloTaskTest extends Test_Case_Unit
+    {
+      protected
+        $_name  = 'hello:user';
+
+      public function testExecuteTask(  )
+      {
+        $user = 'Joey';
+        $bang = '!';
+
+        $status = $this->runTask(
+          $this->_name,
+          array($user),
+          array(
+            'punctuation' => $bang
+        );
+        $this->assertEquals(0, $status, 'Expected task to complete successfully.');
+      }
+    }
+
+`runTask()` takes up to three parameters:
+
+- The name of the task (required).
+- Array of arguments (optional).
+- Array of options (optional).
+
+`runTask()` returns an integer status code, which is the status code that would
+  be reported to the shell were this task run via the `symfony` command-line
+  interface.
+
+- Note that at this time there is no way to capture output from the task
+  execution.
 
 ## Writing Functional Tests
 Functional tests are very similar to unit tests as described above, but you also
@@ -240,74 +276,72 @@ Also, functional test classes should extend the `Test_Case_Functional` class
 
 Here is an example of a functional test class:
 
-<pre>
-# sf_test_dir/functional/frontend/account/register.php
+    # sf_test_dir/functional/frontend/account/register.php
 
-&lt;?php
-class frontend_account_registerTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    /* Activate additional browser plugins. */
-    $this->_browser->usePlugin('form', 'mailer');
+    <?php
+    class frontend_account_registerTest extends Test_Case_Functional
+    {
+      public function testSuccess(  )
+      {
+        /* Activate additional browser plugins. */
+        $this->_browser->usePlugin('form', 'mailer');
 
-    $username = 'mytester';
-    $password = 'password';
-    $email    = 'tester@jwt.com';
+        $username = 'mytester';
+        $password = 'password';
+        $email    = 'tester@jwt.com';
 
-    /* Send browser to the registration form page. */
-    $this->_browser->get('/account/register');
-    $this->assertStatusCode(200);
+        /* Send browser to the registration form page. */
+        $this->_browser->get('/account/register');
+        $this->assertStatusCode(200);
 
-    /* Simulate form submission. */
-    $this->_browser->click('Submit', array(
-      'username' => $username,
-      'password' => $password,
-      'email'    => $email
-    ));
+        /* Simulate form submission. */
+        $this->_browser->click('Submit', array(
+          'username' => $username,
+          'password' => $password,
+          'email'    => $email
+        ));
 
-    /* Check assertions. */
-    $this->assertFalse(
-      $this->_browser->getForm()->hasErrors(),
-      'Expected form to have no errors.'
-    );
+        /* Check assertions. */
+        $this->assertFalse(
+          $this->_browser->getForm()->hasErrors(),
+          'Expected form to have no errors.'
+        );
 
-    $this->assertNotNull(
-      Doctrine::getTable('Profile')->retrieveByUsername($username),
-      'Expected Profile record to be created successfully.'
-    );
+        $this->assertNotNull(
+          Doctrine::getTable('Profile')->retrieveByUsername($username),
+          'Expected Profile record to be created successfully.'
+        );
 
-    $Mailer = $this->_browser->getMailer();
-    $this->assertEquals(
-      1,
-      $Mailer->countMessages(),
-      'Expected welcome email to be dispatched.'
-    );
+        $Mailer = $this->_browser->getMailer();
+        $this->assertEquals(
+          1,
+          $Mailer->countMessages(),
+          'Expected welcome email to be dispatched.'
+        );
 
-    $this->assertEquals(
-      $email,
-      $Mailer->getMessage(0)->getTo(),
-      'Expected welcome email to be sent to the user.'
-    );
+        $this->assertEquals(
+          $email,
+          $Mailer->getMessage(0)->getTo(),
+          'Expected welcome email to be sent to the user.'
+        );
 
-    $this->assertEquals(
-      'account/home',
-      $this->_browser->getResponse()->getRedirectUrl(),
-      'Expected browser to be redirected to account homepage.'
-    );
+        $this->assertEquals(
+          'account/home',
+          $this->_browser->getResponse()->getRedirectUrl(),
+          'Expected browser to be redirected to account homepage.'
+        );
 
-    /* Follow the redirect. */
-    $this->_browser->followRedirect();
-    $this->assertStatusCode(200);
+        /* Follow the redirect. */
+        $this->_browser->followRedirect();
+        $this->assertStatusCode(200);
 
-    $this->assertEquals(
-      sprintf('Welcome, %s!', $username),
-      $this->_browser->getContent()->select('#welcome')->getValue(),
-      "Expected success page to display user's new username."
-    );
-  }
-}
-</pre>
+        $this->assertEquals(
+          sprintf('Welcome, %s!', $username),
+          $this->_browser->getContent()->select('#welcome')->getValue(),
+          "Expected success page to display user's new username."
+        );
+      }
+    }
 
 ### Generating Functional Tests Automatically
 JPUP comes packaged with a Symfony task named `phpunit:generate-functional` to
@@ -318,80 +352,70 @@ To use `phpunit:generate-functional`, you must first create the module and
 
 Once that is done, invoke the task like this:
 
-<pre>
-./symfony phpunit:generate-functional &lt;route>
-</pre>
+    ./symfony phpunit:generate-functional <route>
 
 Where `<route>` is either a route name (prefixed with `@`) or a module/action
   pair.
 
 For example, consider if your application's `routing.yml` looked like this:
 
-<pre>
-# sf_app_dir/config/routing.yml
+    # sf_app_dir/config/routing.yml
 
-# default rules
-homepage:
-  url:   /
-  param: { module: default, action: index }
+    # default rules
+    homepage:
+      url:   /
+      param: { module: default, action: index }
 
-# generic rules
-# please, remove them by adding more specific rules
-default_index:
-  url:   /:module
-  param: { action: index }
+    # generic rules
+    # please, remove them by adding more specific rules
+    default_index:
+      url:   /:module
+      param: { action: index }
 
-default:
-  url:   /:module/:action/*
-</pre>
+    default:
+      url:   /:module/:action/*
 
 You could generate a functional test case for `main/index` using either of the
   following commands:
 
-<pre>
-./symfony phpunit:generate-functional @homepage
-./symfony phpunit:generate-functional main/index
-</pre>
+    ./symfony phpunit:generate-functional @homepage
+    ./symfony phpunit:generate-functional main/index
 
 * By default, JPUP will look at the routing for the "frontend" application.  If
     you want to generate a functional test for a different application, you will
     need to specify it using the `--application` parameter:
 
-<pre>
-./symfony phpunit:generate-functional --application=backend @activitylogs
-</pre>
+    ./symfony phpunit:generate-functional --application=backend @activitylogs
 
 JPUP will generate a skeleton test case for you that looks something like this:
 
-<pre>
-# sf_test_dir/functional/frontend/main/index.php
+    # sf_test_dir/functional/frontend/main/index.php
 
-&lt;?php
-/** Functional tests for /main/index.
- *
- * @author PHX
- *
- * @package myproject
- * @subpackage test.main
- */
-class frontend_main_indexTest extends Test_Case_Functional
-{
-  protected
-    $_application = 'frontend',
-    $_url;
+    <?php
+    /** Functional tests for /main/index.
+     *
+     * @author PHX
+     *
+     * @package myproject
+     * @subpackage test.main
+     */
+    class frontend_main_indexTest extends Test_Case_Functional
+    {
+      protected
+        $_application = 'frontend',
+        $_url;
 
-  protected function _setUp(  )
-  {
-    $this->_url = '/main/index';
-  }
+      protected function _setUp(  )
+      {
+        $this->_url = '/main/index';
+      }
 
-  public function testSmokeCheck(  )
-  {
-    $this->_browser->get($this->_url);
-    $this->assertStatusCode(200);
-  }
-}
-</pre>
+      public function testSmokeCheck(  )
+      {
+        $this->_browser->get($this->_url);
+        $this->assertStatusCode(200);
+      }
+    }
 
 Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
   automatically populates the `@package`, `@subpackage` and `@author` phpdoc
@@ -419,9 +443,7 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
   For example, to change the `@package` of the test case to "MyAwesomeProject",
     you would invoke the task like this:
 
-<pre>
-./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
-</pre>
+    ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
 
 ### Signing In
 Testing applications that require login is a tricky proposition.  It's easy
@@ -432,37 +454,35 @@ Testing applications that require login is a tricky proposition.  It's easy
   in a username or email address, and the browser will make sure the user is
   logged in during the next and subsequent requests:
 
-<pre>
-# sf_test_dir/functional/frontend/admin/dashboard.php
+    # sf_test_dir/functional/frontend/admin/dashboard.php
 
-&lt;?php
-class frontend_admin_dashboardTest extends Test_Case_Functional
-{
-  protected
-    $_url = '/admin/dashboard';
+    <?php
+    class frontend_admin_dashboardTest extends Test_Case_Functional
+    {
+      protected
+        $_url = '/admin/dashboard';
 
-  public function testMustBeLoggedIn(  )
-  {
-    $this->_browser->get($this->_url);
-    $this->assertStatusCode(401);
-  }
+      public function testMustBeLoggedIn(  )
+      {
+        $this->_browser->get($this->_url);
+        $this->assertStatusCode(401);
+      }
 
-  public function testUserCanAccessIfSignedIn(  )
-  {
-    $this->loadFixture('admin_user.php');
-    $this->_browser->signin('administrator');
+      public function testUserCanAccessIfSignedIn(  )
+      {
+        $this->loadFixture('admin_user.php');
+        $this->_browser->signin('administrator');
 
-    $this->_browser->get($this->_url);
-    $this->assertStatusCode(200);
-  }
+        $this->_browser->get($this->_url);
+        $this->assertStatusCode(200);
+      }
 
-  public function testSigninOnlyLastsForTheDurationOfTheTest(  )
-  {
-    $this->_browser->get($this->_url);
-    $this->assertStatusCode(401);
-  }
-}
-</pre>
+      public function testSigninOnlyLastsForTheDurationOfTheTest(  )
+      {
+        $this->_browser->get($this->_url);
+        $this->assertStatusCode(401);
+      }
+    }
 
 Note from the last test in the example above that the user will only remain
   signed in for the duration of the test in which the call to `signin()` was
@@ -540,42 +560,40 @@ A number of applications expose services that return serialized or JSON-encoded
   would quickly become tedious; fortunately, the Content plugin provides methods
   to handle this automatically:
 
-<pre>
-# sf_test_dir/functional/frontend/do/like.php
+    # sf_test_dir/functional/frontend/do/like.php
 
-&lt;?php
-class frontend_do_likeTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    $this->_browser->post('/do/like', array(
-      'user_id'     => '1',
-      'object_id'   => '123'
-    ));
+    <?php
+    class frontend_do_likeTest extends Test_Case_Functional
+    {
+      public function testSuccess(  )
+      {
+        $this->_browser->post('/do/like', array(
+          'user_id'     => '1',
+          'object_id'   => '123'
+        ));
 
-    $this->assertStatusCode(200);
+        $this->assertStatusCode(200);
 
-    /* (string) $this->_browser->getContent() would evaluate to:
-     * '{"status":"OK","likes":"1"}'
-     *
-     * To work with the decoded JSON code, use:
-     */
-    $decoded = $this->_browser->getContent()->decodeJson();
+        /* (string) $this->_browser->getContent() would evaluate to:
+         * '{"status":"OK","likes":"1"}'
+         *
+         * To work with the decoded JSON code, use:
+         */
+        $decoded = $this->_browser->getContent()->decodeJson();
 
-    $this->assertEquals(
-      'OK',
-      $decoded->status,
-      'Expected success status value.'
-    );
+        $this->assertEquals(
+          'OK',
+          $decoded->status,
+          'Expected success status value.'
+        );
 
-    $this->assertEquals(
-      1,
-      $decoded->likes,
-      'Expected correctly-incremented number of likes.'
-    );
-  }
-}
-</pre>
+        $this->assertEquals(
+          1,
+          $decoded->likes,
+          'Expected correctly-incremented number of likes.'
+        );
+      }
+    }
 
 * The Content plugin also has a `deserialize()` method for output encoded with
   PHP's `serialize()` function.
@@ -587,39 +605,37 @@ class frontend_do_likeTest extends Test_Case_Functional
 #### Testing Form Submissions
 To access a submitted form, use the Form plugin:
 
-<pre>
-# sf_test_dir/functional/frontend/contactus/reportissue.php
+    # sf_test_dir/functional/frontend/contactus/reportissue.php
 
-&lt;?php
-class frontend_main_reportissueTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    /* The Form plugin has to be activated before it can be used. */
-    $this->_browser->usePlugin('form');
+    <?php
+    class frontend_main_reportissueTest extends Test_Case_Functional
+    {
+      public function testSuccess(  )
+      {
+        /* The Form plugin has to be activated before it can be used. */
+        $this->_browser->usePlugin('form');
 
-    $this->_browser->get('/contactus/reportissue');
-    $this->assertStatusCode(200);
+        $this->_browser->get('/contactus/reportissue');
+        $this->assertStatusCode(200);
 
-    $this->_browser->click('Submit', array(
-      'issue' => array(
-        'firstname'   => 'Functional',
-        'lastname'    => 'Tester',
-        'email'       => 'functional_tester@jwt.com',
-        'description' => 'This is a test form submission.'
-      )
-    ));
+        $this->_browser->click('Submit', array(
+          'issue' => array(
+            'firstname'   => 'Functional',
+            'lastname'    => 'Tester',
+            'email'       => 'functional_tester@jwt.com',
+            'description' => 'This is a test form submission.'
+          )
+        ));
 
-    /* Access the submitted form. */
-    $Form = $this->_browser->getForm();
+        /* Access the submitted form. */
+        $Form = $this->_browser->getForm();
 
-    $this->assertFalse(
-      $Form->hasErrors(),
-      'Expected form to have no errors.'
-    );
-  }
-}
-</pre>
+        $this->assertFalse(
+          $Form->hasErrors(),
+          'Expected form to have no errors.'
+        );
+      }
+    }
 
 * As it is not used very often, the Form plugin is not enabled by default.  To
   use it in your test, call `$this->_browser->usePlugin('form')`.
@@ -635,56 +651,54 @@ class frontend_main_reportissueTest extends Test_Case_Functional
 #### Testing Emails
 To interact with Symfony's built in mailer, use the Mailer plugin:
 
-<pre>
-# sf_test_dir/functional/frontend/contactus/reportissue.php
+    # sf_test_dir/functional/frontend/contactus/reportissue.php
 
-&lt;?php
-class frontend_main_reportissueTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    /* The Mailer plugin has to be activated before it can be used. */
-    $this->_browser->usePlugin('mailer');
+    <?php
+    class frontend_main_reportissueTest extends Test_Case_Functional
+    {
+      public function testSuccess(  )
+      {
+        /* The Mailer plugin has to be activated before it can be used. */
+        $this->_browser->usePlugin('mailer');
 
-    $email = 'functional_tester@jwt.com';
+        $email = 'functional_tester@jwt.com';
 
-    $this->_browser
-      ->get('/contactus/reportissue')
-      ->click('Submit', array(
-          'issue' => array(
-            'firstname'   => 'Functional',
-            'lastname'    => 'Tester',
-            'email'       => $email,
-            'description' => 'This is a test form submission.'
-          )
-        ));
+        $this->_browser
+          ->get('/contactus/reportissue')
+          ->click('Submit', array(
+              'issue' => array(
+                'firstname'   => 'Functional',
+                'lastname'    => 'Tester',
+                'email'       => $email,
+                'description' => 'This is a test form submission.'
+              )
+            ));
 
-    ... snip ...
+        ... snip ...
 
-    /* Test emails sent from form submission. */
-    $Mailer = $this->_browser->getMailer();
+        /* Test emails sent from form submission. */
+        $Mailer = $this->_browser->getMailer();
 
-    $this->assertEquals(
-      2,
-      $Mailer->countMessages(),
-      'Expected correct number of emails to be sent.'
-    );
+        $this->assertEquals(
+          2,
+          $Mailer->countMessages(),
+          'Expected correct number of emails to be sent.'
+        );
 
-    /* Get the email that was sent to the user. */
-    $Message = $Mailer->getMessageWith('to', $email);
-    $this->assertNotNull(
-      $Message,
-      'Expected an email to be sent to the user.'
-    );
+        /* Get the email that was sent to the user. */
+        $Message = $Mailer->getMessageWith('to', $email);
+        $this->assertNotNull(
+          $Message,
+          'Expected an email to be sent to the user.'
+        );
 
-    $this->assertEquals(
-      sfConfig::get('app_webmaster_email'),
-      $Message->getFrom(),
-      'Expected email sent to user to be from system administrator.'
-    );
-  }
-}
-</pre>
+        $this->assertEquals(
+          sfConfig::get('app_webmaster_email'),
+          $Message->getFrom(),
+          'Expected email sent to user to be from system administrator.'
+        );
+      }
+    }
 
 * As it is not used very often, the Mailer plugin is not enabled by default.
   To use it in your test, call `$this->_browser->usePlugin('mailer')`.
@@ -697,48 +711,46 @@ class frontend_main_reportissueTest extends Test_Case_Functional
 The Request and Response plugins provide access to forwarding and redirecting
   information, respectively.
 
-* For an explanation of the difference between redirecting and forwarding,
-  see [this blog post](http://firebird84vn.wordpress.com/2007/06/30/skipping-to-another-action/).
+    # sf_test_dir/functional/frontend/contactus/reportissue.php
 
-<pre>
-# sf_test_dir/functional/frontend/contactus/reportissue.php
+    <?php
+    class frontend_contactus_reportissueTest extends Test_Case_Functional
+    {
+      public function testSubmission(  )
+      {
+        $this->_browser->get('/contactus/reportissue');
+        $this->assertStatusCode(200);
 
-&lt;?php
-class frontend_contactus_reportissueTest extends Test_Case_Functional
-{
-  public function testSubmission(  )
-  {
-    $this->_browser->get('/contactus/reportissue');
-    $this->assertStatusCode(200);
+        $this->_browser->click('Submit', array(...));
 
-    $this->_browser->click('Submit', array(...));
+        ... snip ...
 
-    ... snip ...
+        $this->assertEquals(
+          '/contactus/reportissue/thankyou',
+          $this->_browser->getResponse()->getRedirectURL(),
+          'Expected browser to be redirected to the confirmation page.'
+        );
+      }
 
-    $this->assertEquals(
-      '/contactus/reportissue/thankyou',
-      $this->_browser->getResponse()->getRedirectURL(),
-      'Expected browser to be redirected to the confirmation page.'
-    );
-  }
+      public function testForwardIfNoSubmission(  )
+      {
+        $this->_browser->get('/contactus/reportissue/thankyou');
 
-  public function testForwardIfNoSubmission(  )
-  {
-    $this->_browser->get('/contactus/reportissue/thankyou');
-
-    $this->assertEquals(
-      'contactus/reportissue',
-      $this->_browser->getRequest()->getForwardString(),
-      'Expected request to be forwarded to form.'
-    );
-  }
-}
-</pre>
+        $this->assertEquals(
+          'contactus/reportissue',
+          $this->_browser->getRequest()->getForwardString(),
+          'Expected request to be forwarded to form.'
+        );
+      }
+    }
 
 * The test browser will not follow redirects automatically.  To follow a
   redirect, call `$this->_browser->followRedirect()`.
 
   This only applies to redirects; forwards are followed automatically.
+
+* For an explanation of the difference between redirecting and forwarding,
+  see [this blog post](http://firebird84vn.wordpress.com/2007/06/30/skipping-to-another-action/).
 
 #### Troubleshooting 500 Errors
 When applications generate 500 errors, Symfony will forward the request to a
@@ -748,40 +760,38 @@ When applications generate 500 errors, Symfony will forward the request to a
 Fortunately, the Error plugin makes it easy to get information (including a
   stack trace) about any uncaught exceptions the application generates:
 
-<pre>
-# sf_test_dir/functional/frontend/contactus/reportissue.php
+    # sf_test_dir/functional/frontend/contactus/reportissue.php
 
-&lt;?php
-class frontend_main_reportissueTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    $this->_browser
-      ->get('/contactus/reportissue')
-      ->click('Submit', array(
-          'issue' => array(
-            'firstname'   => 'Functional',
-            'lastname'    => 'Tester',
-            'email'       => $email,
-            'description' => 'This is a test form submission.'
-          )
-        ));
+    <?php
+    class frontend_main_reportissueTest extends Test_Case_Functional
+    {
+      public function testSuccess(  )
+      {
+        $this->_browser
+          ->get('/contactus/reportissue')
+          ->click('Submit', array(
+              'issue' => array(
+                'firstname'   => 'Functional',
+                'lastname'    => 'Tester',
+                'email'       => $email,
+                'description' => 'This is a test form submission.'
+              )
+            ));
 
-    /* For some reason, the request is generating a 500 error.  Find out what
-     *  the problem is:
-     */
-    echo
-      PHP_EOL, PHP_EOL, $this->_browser->getError()
-      PHP_EOL, PHP_EOL, $this->_browser->getError()->getTraceAsString();
+        /* For some reason, the request is generating a 500 error.  Find out what
+         *  the problem is:
+         */
+        echo
+          PHP_EOL, PHP_EOL, $this->_browser->getError()
+          PHP_EOL, PHP_EOL, $this->_browser->getError()->getTraceAsString();
 
 
-    /* This assertion will still fail, but not before we get to see what's going
-     *  on.
-     */
-    $this->assertStatusCode(200);
-  }
-}
-</pre>
+        /* This assertion will still fail, but not before we get to see what's going
+         *  on.
+         */
+        $this->assertStatusCode(200);
+      }
+    }
 
 * Since 500 errors are generally not considered to be desirable behavior, you
   will probably end up using this plugin to debug your application rather than
@@ -803,40 +813,38 @@ To inject the logger, you will need to first call
 Once the logger has been injected, you can inspect the log messages generated by
   the most recent request like this:
 
-<pre>
-# sf_test_dir/functional/frontend/contactus/reportissue.php
+    # sf_test_dir/functional/frontend/contactus/reportissue.php
 
-&lt;?php
-class frontend_main_reportissueTest extends Test_Case_Functional
-{
-  public function testSuccess(  )
-  {
-    /* Inject the logger so that we can inspect log messages. */
-    $this->_browser->usePlugin('logger');
+    <?php
+    class frontend_main_reportissueTest extends Test_Case_Functional
+    {
+      public function testSuccess(  )
+      {
+        /* Inject the logger so that we can inspect log messages. */
+        $this->_browser->usePlugin('logger');
 
-    $this->_browser
-      ->get('/contactus/reportissue')
-      ->click('Submit', array(
-          'issue' => array(
-            'firstname'   => 'Functional',
-            'lastname'    => 'Tester',
-            'email'       => $email,
-            'description' => 'This is a test form submission.'
-          )
-        ));
+        $this->_browser
+          ->get('/contactus/reportissue')
+          ->click('Submit', array(
+              'issue' => array(
+                'firstname'   => 'Functional',
+                'lastname'    => 'Tester',
+                'email'       => $email,
+                'description' => 'This is a test form submission.'
+              )
+            ));
 
-    /* For some reason, the request is generating a 404.  Maybe the application
-     *  logs will hold some clues.
-     */
-    echo $this->_browser->getLogger(), PHP_EOL;
+        /* For some reason, the request is generating a 404.  Maybe the application
+         *  logs will hold some clues.
+         */
+        echo $this->_browser->getLogger(), PHP_EOL;
 
-    /* This assertion will still fail, but not before we get to see what's going
-     *  on.
-     */
-    $this->assertStatusCode(200);
-  }
-}
-</pre>
+        /* This assertion will still fail, but not before we get to see what's going
+         *  on.
+         */
+        $this->assertStatusCode(200);
+      }
+    }
 
 Note that the logger will be injected after the context loads its factories,
   so there will not be any log messages from factory initialization (such as
@@ -846,20 +854,18 @@ You can work around this by instructing Symfony to load an `sfVarLogger` in
   your `factories.yml` file.  The Logger plugin will first check to see if an
   `sfVarLogger` has been added to the context before injecting its own.
 
-<pre>
-# sf_apps_dir/frontend/config/factories.yml:
+    # sf_apps_dir/frontend/config/factories.yml:
 
-test:
-  logger:
-    class:    sfAggregateLogger
-    param:
-      level:    debug
-      loggers:
-        sf_var_logger:
-          class:  sfVarLogger
-          param:
-            level:  debug
-</pre>
+    test:
+      logger:
+        class:    sfAggregateLogger
+        param:
+          level:    debug
+          loggers:
+            sf_var_logger:
+              class:  sfVarLogger
+              param:
+                level:  debug
 
 With the above configuration in place in your application's `factories.yml`
   file, you will be able to inspect all application log messages in your test
@@ -881,59 +887,56 @@ From time to time, it might be useful for tests to inject event handlers into
 As an example, consider this test which checks to see if an event handler can
   abort the signin process by setting the event's return value to `false`:
 
-<pre>
-# sf_test_dir/functional/frontend/auth/signin.php:
+    # sf_test_dir/functional/frontend/auth/signin.php:
 
-class frontend_auth_signinTest extends Test_Case_Functional
-{
-  public function testEventHandlerBlocksSignin(  )
-  {
-    /* Inject event handler that listens for pre-signin event. */
-    $this->_browser->addListener(new Test_Browser_Listener_Callback(
-      'auth.user.signin.pre',
-      array($this, '_blockSignin')
-    ));
+    class frontend_auth_signinTest extends Test_Case_Functional
+    {
+      public function testEventHandlerBlocksSignin(  )
+      {
+        /* Inject event handler that listens for pre-signin event. */
+        $this->_browser->addListener(new Test_Browser_Listener_Callback(
+          'auth.user.signin.pre',
+          array($this, '_blockSignin')
+        ));
 
-    /* Simulate submission of login form. */
-    $this->_browser->post('/auth/signin', array(
-      'username'  => 'foo',
-      'password'  => 'bar'
-    ));
+        /* Simulate submission of login form. */
+        $this->_browser->post('/auth/signin', array(
+          'username'  => 'foo',
+          'password'  => 'bar'
+        ));
 
-    $this->assertFalse(
-      $this->_browser->getUser()->isAuthenticated(),
-      'Expected user to remain unauthenticated.'
-    );
-  }
+        $this->assertFalse(
+          $this->_browser->getUser()->isAuthenticated(),
+          'Expected user to remain unauthenticated.'
+        );
+      }
 
-  /** Aborts the signin process by setting the event's return value to false.
-   *
-   * @param sfEvent $event
-   *
-   * @return void
-   */
-  public function _blockSignin( sfEvent $event )
-  {
-    $event->setReturnValue(false);
-  };
-}
-</pre>
+      /** Aborts the signin process by setting the event's return value to
+       *    false.
+       *
+       * @param sfEvent $event
+       *
+       * @return void
+       */
+      public function _blockSignin( sfEvent $event )
+      {
+        $event->setReturnValue(false);
+      };
+    }
 
 `Test_Browser_Listener_Callback->__construct()` accepts a single event name and
   one or more callbacks; e.g.:
 
-<pre>
-$this->_browser->addListener(new Test_Browser_Listener_Callback(
-  'context.load_factories',
-    array($this, '_initContext'),
-    array('MyClass', 'doSomething'),
+    $this->_browser->addListener(new Test_Browser_Listener_Callback(
+      'context.load_factories',
+        array($this, '_initContext'),
+        array('MyClass', 'doSomething'),
 
-    /* PHP 5.3 closures are also supported: */
-    function( sfEvent $event ) { ... }
+        /* PHP 5.3 closures are also supported: */
+        function( sfEvent $event ) { ... }
 
-    // etc.
-));
-</pre>
+        // etc.
+    ));
 
 # Database Interaction
 Note that JPUP is currently only compatible with Doctrine.
@@ -950,17 +953,15 @@ Before running any tests, JPUP first verifies to make sure that a distinct
 To specify a separate DSN for testing, add the following lines to your
   databases.yml file:
 
-<pre>
-# config/databases.yml
+    # config/databases.yml
 
-test:
-  doctrine:
-    class: sfDoctrineDatabase
-    param:
-      dsn: "mysql:host=&lt;hostname>;dbname=&lt;test db name>"
-      username: "&lt;username>"
-      password: "&lt;password>"
-</pre>
+    test:
+      doctrine:
+        class: sfDoctrineDatabase
+        param:
+          dsn: "mysql:host=<hostname>;dbname=<test db name>"
+          username: "<username>"
+          password: "<password>"
 
 Replace the values in brackets above with ones that correspond to your database setup.
 
@@ -971,14 +972,12 @@ Replace the values in brackets above with ones that correspond to your database 
   (and all database connectivity) by setting `use_database` to `false` in
   `apps/*/config/settings.yml`:
 
-<pre>
-# apps/frontend/config/settings.yml
+        # apps/frontend/config/settings.yml
 
-all:
-  .settings:
-    ... snip ...
-    use_database:           false
-</pre>
+        all:
+          .settings:
+            ... snip ...
+            use_database:           false
 
 ## Pre-Test Checks
 Before running each test, JPUP automatically flushes the database:
@@ -1013,38 +1012,34 @@ Note that JPUP flushes the database **before** each test, not **after** it.
 ## Loading Fixtures
 To load test fixtures, call `$this->loadFixture()` in your test case, e.g.:
 
-<pre>
-# sf_test_dir/unit/Hello.php
+    # sf_test_dir/unit/Hello.php
 
-&lt;?php
-class HelloTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-    /* Load sf_test_dir/fixtures/hello.yml. */
-    $this->loadFixture('hello.yml');
-  }
-}
-</pre>
+    <?php
+    class HelloTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+        /* Load sf_test_dir/fixtures/hello.yml. */
+        $this->loadFixture('hello.yml');
+      }
+    }
 
 ### Loading Fixtures for Other Plugins
 
 To load a fixture for another plugin, pass the plugin's name as the third
   parameter to `loadFixture()`:
 
-<pre>
-# sf_test_dir/unit/Hello.php
+    # sf_test_dir/unit/Hello.php
 
-&lt;?php
-class HelloTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-    /* Load sf_plugins_dir/myOtherPlugin/test/fixtures/hello.yml. */
-    $this->loadFixture('hello.yml', false, 'myOtherPlugin');
-  }
-}
-</pre>
+    <?php
+    class HelloTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+        /* Load sf_plugins_dir/myOtherPlugin/test/fixtures/hello.yml. */
+        $this->loadFixture('hello.yml', false, 'myOtherPlugin');
+      }
+    }
 
 ## Loading Production Fixtures
 
@@ -1052,38 +1047,34 @@ Sometimes, it is necessary to load production data fixtures (located in
   `sf_data_dir/fixtures`) during tests.  To load these data fixtures, call
   `$this->loadProductionFixture()` instead, e.g.:
 
-<pre>
-# sf_test_dir/unit/Ticket.php
+    # sf_test_dir/unit/Ticket.php
 
-&lt;?php
-class TicketTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-    /* Load sf_data_dir/fixtures/ticket_types.yml. */
-    $this->loadProductionFixture('ticket_types.yml');
-  }
-}
-</pre>
+    <?php
+    class TicketTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+        /* Load sf_data_dir/fixtures/ticket_types.yml. */
+        $this->loadProductionFixture('ticket_types.yml');
+      }
+    }
 
 ### Production Fixtures for Other Plugins
 
 `loadProductionFixture()` can also be directed to load production fixtures for
   other plugins just like `loadFixture()`:
 
-<pre>
-# sf_test_dir/unit/Ticket.php
+    # sf_test_dir/unit/Ticket.php
 
-&lt;?php
-class TicketTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-    /* Load sf_plugins_dir/myOtherPlugin/data/fixtures/ticket_types.yml. */
-    $this->loadProductionFixture('ticket_types.yml', false, 'myOtherPlugin');
-  }
-}
-</pre>
+    <?php
+    class TicketTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+        /* Load sf_plugins_dir/myOtherPlugin/data/fixtures/ticket_types.yml. */
+        $this->loadProductionFixture('ticket_types.yml', false, 'myOtherPlugin');
+      }
+    }
 
 ### Caveats
 * The database gets flushed in between tests, so you will need to make sure your
@@ -1104,51 +1095,45 @@ JPUP can load YAML fixture files similarly to the way Symfony's
   `doctrine:data-load` task operates.  To load a YAML fixture file, provide the
   name of the file to `$this->loadFixture()`:
 
-<pre>
-# sf_test_dir/unit/MyTest.php
+    # sf_test_dir/unit/MyTest.php
 
-&lt;?php
-class MyTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-    $this->loadFixture('users.yml');
-  }
-}
-</pre>
+    <?php
+    class MyTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+        $this->loadFixture('users.yml');
+      }
+    }
 
 Here's what the YAML fixture looks like:
 
-<pre>
-# sf_test_dir/fixtures/users.yml
+    # sf_test_dir/fixtures/users.yml
 
-User:
-  admin:
-    username: admin
-    password: password
-    active:   1
-  editor:
-    username: editor
-    password: password
-    active:   1
-  inactive:
-    username: haxor
-    password: 1337
-    active:   0
-</pre>
+    User:
+      admin:
+        username: admin
+        password: password
+        active:   1
+      editor:
+        username: editor
+        password: password
+        active:   1
+      inactive:
+        username: haxor
+        password: 1337
+        active:   0
 
 As with other Symfony YAML files, you can include PHP code and Symfony config
   values:
 
-<pre>
-# sf_test_dir/fixtures/users.yml
+    # sf_test_dir/fixtures/users.yml
 
-User:
-  admin:
-    username: %APP_DEFAULT_ADMIN_USERNAME%
-    password: &lt;?php echo sha1('saltpasswordsalt'); ?>
-    active:   1
-</pre>
+    User:
+      admin:
+        username: %APP_DEFAULT_ADMIN_USERNAME%
+        password: <?php echo sha1('saltpasswordsalt'); ?>
+        active:   1
 
 If you need to execute a large amount of PHP code, or if you need to set up
   inter-fixture relationships, you might find it more effective to use a PHP
@@ -1159,18 +1144,16 @@ Load a PHP fixture file identically to the way you would load a YAML fixture
   file, except that the filename will have a '.php' extension rather than
   '.yml':
 
-<pre>
-# sf_test_dir/unit/lib/MyClass.php
+    # sf_test_dir/unit/lib/MyClass.php
 
-&lt;?php
-class MyClassTest extends Test_Case_Unit
-{
-  protected function _setUp(  )
-  {
-    $this->loadFixture('articles.php');
-  }
-}
-</pre>
+    <?php
+    class MyClassTest extends Test_Case_Unit
+    {
+      protected function _setUp(  )
+      {
+        $this->loadFixture('articles.php');
+      }
+    }
 
 A PHP fixture file can contain any PHP code.
 
@@ -1183,51 +1166,45 @@ You can load other fixtures from a PHP fixture file by calling
   `$this->loadFixture()` and/or `$this->loadProductionFixture()` just like you
   would from a test case:
 
-<pre>
-# sf_test_dir/fixtures/articles.php
+    # sf_test_dir/fixtures/articles.php
 
-&lt;?php
-$this->loadProductionFixture('sites.yml');
-$this->loadFixture('categories.php');
+    <?php
+    $this->loadProductionFixture('sites.yml');
+    $this->loadFixture('categories.php');
 
-// Load fixture from another plugin:
-$this->loadFixture('entity_types.php', false, 'myOtherPlugin');
-</pre>
+    // Load fixture from another plugin:
+    $this->loadFixture('entity_types.php', false, 'myOtherPlugin');
 
 ##### Sharing Variables
 PHP fixture files can share variables between one other.  To make a variable
   accessible to other fixture files, assign it as a property of `$this` in the
   fixture file:
 
-<pre>
-# sf_test_dir/fixtures/articles.php
+    # sf_test_dir/fixtures/articles.php
 
-&lt;?php
-$this->Article = new Article();
-$this->Article->setTitle('Hello, world!');
-$this->Article->save();
-</pre>
+    <?php
+    $this->Article = new Article();
+    $this->Article->setTitle('Hello, world!');
+    $this->Article->save();
 
 Because `articles.php` defines `$this->Article`, any subsequently-loaded fixture
   can access it:
 
-<pre>
-# sf_test_dir/fixtures/categories.php
+    # sf_test_dir/fixtures/categories.php
 
-&lt;?php
-/* Load dependency fixture. */
-$this->loadFixture('articles.php');
+    <?php
+    /* Load dependency fixture. */
+    $this->loadFixture('articles.php');
 
-$Cat = new Category();
-$Cat->setTitle('Standard Content');
+    $Cat = new Category();
+    $Cat->setTitle('Standard Content');
 
-/* Associate the Article object from sf_test_dir/fixtures/articles.php with
- *  the Category object.
- */
-$Cat->setArticle($this->Article);
+    /* Associate the Article object from sf_test_dir/fixtures/articles.php with
+     *  the Category object.
+     */
+    $Cat->setArticle($this->Article);
 
-$Cat->save();
-</pre>
+    $Cat->save();
 
 If you write a fixture that relies on other fixtures being loaded, it is
   recommended that you explicitly call `$this->loadFixture()` in the fixture
@@ -1243,36 +1220,32 @@ If you write a fixture that relies on other fixtures being loaded, it is
 You can also access shared fixture variables in test cases.  Use
   `$this->getFixtureVar()` to access them:
 
-<pre>
-# sf_test_dir/fixtures/site.php
+    # sf_test_dir/fixtures/site.php
 
-&lt;?php
-$this->TestSite = new Site();
-$this->TestSite->setName('Tanis Dig');
-$this->TestSite->save();
-</pre>
+    <?php
+    $this->TestSite = new Site();
+    $this->TestSite->setName('Tanis Dig');
+    $this->TestSite->save();
 
-<pre>
-# sf_test_dir/unit/model/SiteTable.php
+    # sf_test_dir/unit/model/SiteTable.php
 
-&lt;?php
-class SiteTableTest extends Test_Case_Unit
-{
-  public function testFetchByName(  )
-  {
-    $this->loadFixture('site.php');
+    <?php
+    class SiteTableTest extends Test_Case_Unit
+    {
+      public function testFetchByName(  )
+      {
+        $this->loadFixture('site.php');
 
-    /* References $this->TestSite from the fixture file. */
-    $controlID = $this->getFixtureVar('TestSite')->getId();
+        /* References $this->TestSite from the fixture file. */
+        $controlID = $this->getFixtureVar('TestSite')->getId();
 
-    $this->assertEquals(
-      $controlID,
-      Doctrine::getTable('Site')->fetchByName('Tanis Dig')->getId(),
-      'Expected fetched Site object to have correct ID.'
-    );
-  }
-}
-</pre>
+        $this->assertEquals(
+          $controlID,
+          Doctrine::getTable('Site')->fetchByName('Tanis Dig')->getId(),
+          'Expected fetched Site object to have correct ID.'
+        );
+      }
+    }
 
 ##### Defining Constants
 Because the database gets flushed before every test, it might be necessary to
@@ -1281,41 +1254,37 @@ Because the database gets flushed before every test, it might be necessary to
 
 The PHP fixture loader provides a solution:
 
-<pre>
-# sf_test_dir/fixtures/articles.php
+    # sf_test_dir/fixtures/articles.php
 
-&lt;?php
-/* Defines the constant TEST_ARTICLE_TITLE if not already defined. */
-$this->define('TEST_ARTICLE_TITLE', 'Hello, World!');
+    <?php
+    /* Defines the constant TEST_ARTICLE_TITLE if not already defined. */
+    $this->define('TEST_ARTICLE_TITLE', 'Hello, World!');
 
-$Node = new Article();
-$Node->setTitle(TEST_ARTICLE_TITLE);
-$Node->save();
-</pre>
+    $Node = new Article();
+    $Node->setTitle(TEST_ARTICLE_TITLE);
+    $Node->save();
 
 The constant is, naturally, accessible in test cases as well:
 
-<pre>
-# sf_test_dir/unit/ArticleTable.php
+    # sf_test_dir/unit/ArticleTable.php
 
-&lt;?php
-class ArticleTableTest extends Test_Case_Unit
-{
-  public function testFetchByTitle(  )
-  {
-    $this->loadFixture('articles.php');
+    <?php
+    class ArticleTableTest extends Test_Case_Unit
+    {
+      public function testFetchByTitle(  )
+      {
+        $this->loadFixture('articles.php');
 
-    /* References TEST_ARTICLE_TITLE constant defined in the articles.php
-     *  fixture.
-     */
-    $Article = Doctrine::getTable('Article')->fetchByTitle(TEST_ARTICLE_TITLE);
-    $this->assertFalse(
-      $Article->isNew(),
-      'Expected fetchByTitle() to find the existing article.'
-    );
-  }
-}
-</pre>
+        /* References TEST_ARTICLE_TITLE constant defined in the articles.php
+         *  fixture.
+         */
+        $Article = Doctrine::getTable('Article')->fetchByTitle(TEST_ARTICLE_TITLE);
+        $this->assertFalse(
+          $Article->isNew(),
+          'Expected fetchByTitle() to find the existing article.'
+        );
+      }
+    }
 
 As with shared fixture variables, constants defined in fixture files are not
   namespaced.  If you are trying to `define()` a constant that was already set
@@ -1335,44 +1304,42 @@ For example, consider this functional test that verifies that content can be
 After generating the export files, we flush the database and load a new
   fixture to simulate a separate instance of the application.
 
-<pre>
-# sf_test_dir/functional/backend/migrate/index.php
+    # sf_test_dir/functional/backend/migrate/index.php
 
-&lt;?php
-class backend_migrate_indexTest extends Test_Case_Functional
-{
-  public function testContentMigration(  )
-  {
-    /* Init the source environment. */
-    $this->loadFixture('content_migration_source.php');
-    sfConfig::set('app_which_env', 'test-');
+    <?php
+    class backend_migrate_indexTest extends Test_Case_Functional
+    {
+      public function testContentMigration(  )
+      {
+        /* Init the source environment. */
+        $this->loadFixture('content_migration_source.php');
+        sfConfig::set('app_which_env', 'test-');
 
-    /* Generate content migration files. */
-    $this->_browser->get('/backend.php/migrate/export', array(
-      'site_id' => '1',
-      'dest'    => 'test2-'
-    ));
+        /* Generate content migration files. */
+        $this->_browser->get('/backend.php/migrate/export', array(
+          'site_id' => '1',
+          'dest'    => 'test2-'
+        ));
 
-    /* Verify the export files were created successfully. */
-    ... assertions go here ...
+        /* Verify the export files were created successfully. */
+        ... assertions go here ...
 
-    /* Pretend we're now on the destination environment. */
-    $this->flushDatabase();
+        /* Pretend we're now on the destination environment. */
+        $this->flushDatabase();
 
-    $this->loadFixture('content_migration_destination.php');
-    sfConfig::set('app_which_env', 'test2-');
+        $this->loadFixture('content_migration_destination.php');
+        sfConfig::set('app_which_env', 'test2-');
 
-    /* Load content migration files into destination. */
-    $this->_browser->get('/backend.php/migrate/import', array(
-      'site_id' => '1',
-      'from'    => 'test-'
-    ));
+        /* Load content migration files into destination. */
+        $this->_browser->get('/backend.php/migrate/import', array(
+          'site_id' => '1',
+          'from'    => 'test-'
+        ));
 
-    /* Verify that objects were imported successfully. */
-    ... assertions go here ...
-  }
-}
-</pre>
+        /* Verify that objects were imported successfully. */
+        ... assertions go here ...
+      }
+    }
 
 * `flushDatabase()` takes an optional `$rebuild` parameter that will force it to
   drop and rebuild the entire database rather than just truncating all the data.
@@ -1398,15 +1365,13 @@ Even if the code you are testing does not use file uploads explicitly, JPUP
 To specify an uploads directory for JPUP, add the following line to the
   settings.yml file for your application:
 
-<pre>
-# apps/frontend/config/settings.yml
+    # apps/frontend/config/settings.yml
 
-test:
-  .settings
-    ... snip ...
-    # Add this line:
-    upload_dir:             %SF_TEST_CACHE_DIR%/uploads
-</pre>
+    test:
+      .settings
+        ... snip ...
+        # Add this line:
+        upload_dir:             %SF_TEST_CACHE_DIR%/uploads
 
 * You will also need to make sure that the test uploads directory exists and is
   writable.
@@ -1418,35 +1383,33 @@ JPUP will automatically remove all files in the test uploads directory before
 If you need to clear out the uploads directory mid-test, you can call
   `$this->flushUploads()`:
 
-<pre>
-# sf_test_dir/functional/frontend/account/profile.php
+    # sf_test_dir/functional/frontend/account/profile.php
 
-&lt;?php
-class frontend_account_profileTest extends Test_Case_Functional
-{
-  public function testDetectMissingAvatar(  )
-  {
-    /* User uploads an avatar as normal. */
-    $this->_browser
-      ->get('/account/profile/avatar')
-      ->click('Submit', array(
-          'avatar' => sfConfig::get('sf_fixture_dir') . '/uploads/avatar.jpg'
-        ));
+    <?php
+    class frontend_account_profileTest extends Test_Case_Functional
+    {
+      public function testDetectMissingAvatar(  )
+      {
+        /* User uploads an avatar as normal. */
+        $this->_browser
+          ->get('/account/profile/avatar')
+          ->click('Submit', array(
+              'avatar' => sfConfig::get('sf_fixture_dir') . '/uploads/me.jpg'
+            ));
 
-    /* Pretend the upload inexplicably failed. */
-    $this->flushUploads();
+        /* Pretend the upload inexplicably failed. */
+        $this->flushUploads();
 
-    /* Follow the redirect back to the profile page. */
-    $this->_browser->followRedirect();
+        /* Follow the redirect back to the profile page. */
+        $this->_browser->followRedirect();
 
-    $this->assertEquals(
-      sfConfig::get('app_missing_avatar'),
-      $this->_browser->getContent()->select('#avatar')->getAttribute('src'),
-      'Expected "missing avatar" graphic to display in place of missing avatar.'
-    );
-  }
-}
-</pre>
+        $this->assertEquals(
+          sfConfig::get('app_missing_avatar'),
+          $this->_browser->getContent()->select('#avatar')->getAttribute('src'),
+          'Expected "missing avatar" pic to display in place of missing avatar.'
+        );
+      }
+    }
 
 # sfConfig
 JPUP automatically restores `sfConfig` values between tests, so you do not have
@@ -1455,35 +1418,33 @@ JPUP automatically restores `sfConfig` values between tests, so you do not have
 If you wish to revert all `sfConfig` values mid-test, call
   `$this->flushConfigs()`:
 
-<pre>
-# sf_test_dir/unit/lib/ConfigWatcher.class.php
+    # sf_test_dir/unit/lib/ConfigWatcher.class.php
 
-&lt;?php
-class ConfigWatcherTest extends Test_Case_Unit
-{
-  public function testSuccess(  )
-  {
-    ConfigWatcher::init();
+    <?php
+    class ConfigWatcherTest extends Test_Case_Unit
+    {
+      public function testSuccess(  )
+      {
+        ConfigWatcher::init();
 
-    /* Change a config value. */
-    $key = 'app_some_value';
-    sfConfig::set($key, 100);
+        /* Change a config value. */
+        $key = 'app_some_value';
+        sfConfig::set($key, 100);
 
-    $this->assertTrue(
-      ConfigWatcher::isModified($key),
-      'Expected ConfigWatcher to notice when config value was modified.'
-    );
+        $this->assertTrue(
+          ConfigWatcher::isModified($key),
+          'Expected ConfigWatcher to notice when config value is modified.'
+        );
 
-    /* Reset the config value. */
-    $this->flushConfigs();
+        /* Reset the config value. */
+        $this->flushConfigs();
 
-    $this->assertFalse(
-      ConfigWatcher::isModified($key),
-      'Expected ConfigWatcher to notice when modified config value was reset.'
-    );
-  }
-}
-</pre>
+        $this->assertFalse(
+          ConfigWatcher::isModified($key),
+          'Expected ConfigWatcher to notice when config value is reset.'
+        );
+      }
+    }
 
 # Error Reporting
 By default, Symfony turns off `E_NOTICE` errors for the `test` environment.
@@ -1493,22 +1454,19 @@ By default, Symfony turns off `E_NOTICE` errors for the `test` environment.
 To fix `error_reporting`, look for the following setting in
   `apps/*/config/settings.yml`:
 
-<pre>
-# apps/frontend/config/settings.yml
+    # apps/frontend/config/settings.yml
 
-test:
-  .settings:
-    error_reporting:        &lt;?php echo ((E_ALL | E_STRICT) ^ E_NOTICE)."\n" ?>
-</pre>
+    test:
+      .settings:
+        error_reporting:        <?php echo ((E_ALL | E_STRICT) ^ E_NOTICE)."\n" ?>
 
 And change it to look like this:
-<pre>
-# apps/frontend/config/settings.yml
 
-test:
-  .settings:
-    error_reporting:        &lt;?php echo (E_ALL | E_STRICT)."\n"; ?>
-</pre>
+    # apps/frontend/config/settings.yml
+
+    test:
+      .settings:
+        error_reporting:        <?php echo (E_ALL | E_STRICT)."\n"; ?>
 
 * This feature cannot currently be bypassed.  If your application relies on
   code that generates `E_NOTICE` errors (and you don't want to fix them), you
@@ -1534,18 +1492,16 @@ By default, JPUP runs tests using the `frontend` application context.  If your
   test (unit or functional) should be run with a different configuration, add an
   `$_application` property to your test class:
 
-<pre>
-# sf_test_dir/functional/backend/config/set.php
+    # sf_test_dir/functional/backend/config/set.php
 
-&lt;?php
-class backend_config_SetTest extends Test_Case_Functional
-{
-  protected
-    $_application = 'backend';
+    <?php
+    class backend_config_SetTest extends Test_Case_Functional
+    {
+      protected
+        $_application = 'backend';
 
-  ... snip ...
-}
-</pre>
+      ... snip ...
+    }
 
 * This feature is primarily intended for functional tests.  Unit tests, by
   definition, should not need to rely on a specific application's configuration.
@@ -1556,12 +1512,10 @@ class backend_config_SetTest extends Test_Case_Functional
 * If your project does not have a `frontend` application, you will need to
   specify a different default value in your bootstrap script:
 
-<pre>
-# sf_test_dir/bootstrap/phpunit.php
+        # sf_test_dir/bootstrap/phpunit.php
 
-&lt;?php
-Test_Case::setDefaultApplicationName('appname');
-</pre>
+        <?php
+        Test_Case::setDefaultApplicationName('appname');
 
 # Specifying the Plugin Name
 It is now possible to contain all unit tests and fixtures for a plugin with that
@@ -1577,16 +1531,14 @@ Store plugin-specific unit tests in `sf_plugins_dir/plugin_name/test/unit`,
 In your test case, set the `$_plugin` instance property to the name of the
   plugin:
 
-<pre>
-&lt;?php
-# sf_plugins_dir/myHelloPlugin/test/unit/lib/Hello.class.php
+    <?php
+    # sf_plugins_dir/myHelloPlugin/test/unit/lib/Hello.class.php
 
-class HelloTest extends Test_Case_Unit
-{
-  protected
-    $_plugin = 'myHelloPlugin';
-}
-</pre>
+    class HelloTest extends Test_Case_Unit
+    {
+      protected
+        $_plugin = 'myHelloPlugin';
+    }
 
 ### Caveats
 #### Loading Fixtures
@@ -1595,31 +1547,29 @@ By default, `loadFixture()` and `loadProductionFixture()` will look in the
   fixture from a plugin test case, you will need to specify `null` as the third
   parameter to `loadFixture()` and/or `loadProductionFixture()`:
 
-<pre>
-# sf_plugins_dir/myHelloPlugin/test/unit/Hello.php
+    # sf_plugins_dir/myHelloPlugin/test/unit/Hello.php
 
-&lt;?php
-class HelloTest extends Test_Case_Unit
-{
-  protected
-    $_plugin = 'myHelloPlugin';
+    <?php
+    class HelloTest extends Test_Case_Unit
+    {
+      protected
+        $_plugin = 'myHelloPlugin';
 
-  protected function _setUp(  )
-  {
-    // Load sf_plugins_dir/myHelloPlugin/test/fixtures/hello.yml.
-    $this->loadFixture('hello.yml');
+      protected function _setUp(  )
+      {
+        // Load sf_plugins_dir/myHelloPlugin/test/fixtures/hello.yml.
+        $this->loadFixture('hello.yml');
 
-    // Load sf_test_dir/fixtures/hello.yml.
-    $this->loadFixture('hello.yml', false, null);
+        // Load sf_test_dir/fixtures/hello.yml.
+        $this->loadFixture('hello.yml', false, null);
 
-    // Load sf_plugins_dir/myHelloPlugin/data/fixtures/hello.yml.
-    $this->loadProductionFixture('hello.yml');
+        // Load sf_plugins_dir/myHelloPlugin/data/fixtures/hello.yml.
+        $this->loadProductionFixture('hello.yml');
 
-    // Load sf_data_dir/fixtures/hello.yml.
-    $this->loadProductionFixture('hello.yml', false, null);
-  }
-}
-</pre>
+        // Load sf_data_dir/fixtures/hello.yml.
+        $this->loadProductionFixture('hello.yml', false, null);
+      }
+    }
 
 ## Plugin Fixtures
 ### Files
@@ -1634,22 +1584,20 @@ By default, `loadFixture()` and `loadProductionFixture()` will look in the
   fixture from a plugin test case, you will need to specify `null` as the third
   parameter to `loadFixture()` and/or `loadProductionFixture()`:
 
-<pre>
-# sf_plugins_dir/myAwesomePlugin/test/fixtures/categories.php
+    # sf_plugins_dir/myAwesomePlugin/test/fixtures/categories.php
 
-&lt;?php
-// Load sf_plugins_dir/myAwesomePlugin/test/fixtures/category_types.php.
-$this->loadFixture('category_types.php');
+    <?php
+    // Load sf_plugins_dir/myAwesomePlugin/test/fixtures/category_types.php.
+    $this->loadFixture('category_types.php');
 
-// Load sf_test_dir/fixtures/category_types.php.
-$this->loadFixture('category_types.php', false, null);
+    // Load sf_test_dir/fixtures/category_types.php.
+    $this->loadFixture('category_types.php', false, null);
 
-// Load sf_plugins_dir/myAwesomePlugin/data/fixtures/category_types.yml.
-$this->loadProductionFixture('category_types.yml');
+    // Load sf_plugins_dir/myAwesomePlugin/data/fixtures/category_types.yml.
+    $this->loadProductionFixture('category_types.yml');
 
-// Load sf_data_dir/fixtures/category_types.yml.
-$this->loadProductionFixture('category_types.yml', false, null);
-</pre>
+    // Load sf_data_dir/fixtures/category_types.yml.
+    $this->loadProductionFixture('category_types.yml', false, null);
 
 # Running Tests
 JPUP includes a number of Symfony tasks that you can use to run your tests:
