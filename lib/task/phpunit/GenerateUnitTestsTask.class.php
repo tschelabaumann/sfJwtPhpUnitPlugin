@@ -99,6 +99,7 @@ END;
       /* @var $plugin sfPluginConfiguration */
       try
       {
+        /** @noinspection PhpUndefinedMethodInspection */
         $plugin = $this->configuration->getPluginConfiguration($name);
       }
       catch( InvalidArgumentException $e )
@@ -191,7 +192,7 @@ END;
     /* Replace tokens. */
     $tokens = array(
       'CLASSNAME'   => $ref->getName(),
-      'PACKAGE'     => $this->_guessPackageName($ref),
+      'PACKAGE'     => $this->_guessPackageName($ref, $plugin),
       'SUBPACKAGE'  => $this->_guessSubpackageName($ref, 'test'),
       'AUTHOR'      => $this->_guessAuthorNames($ref, false),
 

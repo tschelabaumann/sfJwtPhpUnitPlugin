@@ -235,14 +235,20 @@ abstract class BasePhpunitGeneratorTask extends BasePhpunitTask
   /** Determines the package name of a class.
    *
    * @param ReflectionClass $ref
+   * @param string          $plugin
    *
    * @return string Class package, project name, or 'symfony'.
    */
-  protected function _guessPackageName( ReflectionClass $ref )
+  protected function _guessPackageName( ReflectionClass $ref, $plugin = null )
   {
-    if( $package = $this->_getTagValues('package', $ref->getDocComment(), false) )
+    $package = $this->_getTagValues('package', $ref->getDocComment(), false);
+    if( $package )
     {
       return $package;
+    }
+    elseif( $plugin )
+    {
+      return $plugin;
     }
     else
     {
