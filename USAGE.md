@@ -1512,10 +1512,10 @@ By default, JPUP runs tests using the `frontend` application context.  If your
 * If your project does not have a `frontend` application, you will need to
   specify a different default value in your bootstrap script:
 
-      # sf_test_dir/bootstrap/phpunit.php
+        # sf_test_dir/bootstrap/phpunit.php
 
-      <?php
-      Test_Case::setDefaultApplicationName('appname');
+        <?php
+        Test_Case::setDefaultApplicationName('appname');
 
 # Specifying the Plugin Name
 It is now possible to contain all unit tests and fixtures for a plugin with that
