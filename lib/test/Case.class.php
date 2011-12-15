@@ -380,6 +380,47 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     return (isset($info['dbname']) ? $info['dbname'] : null);
   }
 
+  /** Runs a Symfony task.
+   *
+   * @param $name string
+   * @param $args string[]
+   * @param $opts string[]
+   *
+   * @return int Returns the status code from the task (usually 0).
+   *
+   * Note that this method intentionally does *not* consume exceptions generated
+   *  by the task!
+   */
+  protected function runTask(
+          $name,
+    array $args = array(),
+    array $opts = array()
+  )
+  {
+    $app = new sfSymfonyCommandApplication(
+      new sfEventDispatcher(),
+      null,
+      array(
+        'symfony_lib_dir' => sfConfig::get('sf_symfony_lib_dir')
+      )
+    );
+
+    if( $task = $app->getTaskToExecute($name) )
+    {
+      if( $task instanceof sfCommandApplicationTask )
+      {
+        /** @var $task sfCommandApplicationTask */
+        $task->setCommandApplication($app);
+      }
+
+      return $task->run($args, $opts);
+    }
+    else
+    {
+      throw new InvalidArgumentException(sprintf('No such task "%s".', $name));
+    }
+  }
+
   /** Checks to make sure we have the correct version of PHPUnit installed.
    *
    * @return void
