@@ -972,12 +972,12 @@ Replace the values in brackets above with ones that correspond to your database 
   (and all database connectivity) by setting `use_database` to `false` in
   `apps/*/config/settings.yml`:
 
-    # apps/frontend/config/settings.yml
+        # apps/frontend/config/settings.yml
 
-    all:
-      .settings:
-        ... snip ...
-        use_database:           false
+        all:
+          .settings:
+            ... snip ...
+            use_database:           false
 
 ## Pre-Test Checks
 Before running each test, JPUP automatically flushes the database:
