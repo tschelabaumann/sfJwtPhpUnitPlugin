@@ -714,38 +714,38 @@ The Request and Response plugins provide access to forwarding and redirecting
 * For an explanation of the difference between redirecting and forwarding,
   see [this blog post](http://firebird84vn.wordpress.com/2007/06/30/skipping-to-another-action/).
 
-    # sf_test_dir/functional/frontend/contactus/reportissue.php
+        # sf_test_dir/functional/frontend/contactus/reportissue.php
 
-    <?php
-    class frontend_contactus_reportissueTest extends Test_Case_Functional
-    {
-      public function testSubmission(  )
-      {
-        $this->_browser->get('/contactus/reportissue');
-        $this->assertStatusCode(200);
+        <?php
+        class frontend_contactus_reportissueTest extends Test_Case_Functional
+        {
+          public function testSubmission(  )
+          {
+            $this->_browser->get('/contactus/reportissue');
+            $this->assertStatusCode(200);
 
-        $this->_browser->click('Submit', array(...));
+            $this->_browser->click('Submit', array(...));
 
-        ... snip ...
+            ... snip ...
 
-        $this->assertEquals(
-          '/contactus/reportissue/thankyou',
-          $this->_browser->getResponse()->getRedirectURL(),
-          'Expected browser to be redirected to the confirmation page.'
-        );
-      }
+            $this->assertEquals(
+              '/contactus/reportissue/thankyou',
+              $this->_browser->getResponse()->getRedirectURL(),
+              'Expected browser to be redirected to the confirmation page.'
+            );
+          }
 
-      public function testForwardIfNoSubmission(  )
-      {
-        $this->_browser->get('/contactus/reportissue/thankyou');
+          public function testForwardIfNoSubmission(  )
+          {
+            $this->_browser->get('/contactus/reportissue/thankyou');
 
-        $this->assertEquals(
-          'contactus/reportissue',
-          $this->_browser->getRequest()->getForwardString(),
-          'Expected request to be forwarded to form.'
-        );
-      }
-    }
+            $this->assertEquals(
+              'contactus/reportissue',
+              $this->_browser->getRequest()->getForwardString(),
+              'Expected request to be forwarded to form.'
+            );
+          }
+        }
 
 * The test browser will not follow redirects automatically.  To follow a
   redirect, call `$this->_browser->followRedirect()`.
