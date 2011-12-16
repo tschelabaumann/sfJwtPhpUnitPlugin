@@ -514,7 +514,7 @@ Here is the full list of plugins that come with JPUP:
     (useful for debugging HTTP 500 response codes).
 
 - Form
-  - Usage:  `$this->_browser->getForm()`
+  - Usage:  `$this->_browser->getForm($var = null)`
   - Makes accessible the `sfForm` instance bound to the Symfony action if
     applicable.
 
@@ -540,12 +540,17 @@ Here is the full list of plugins that come with JPUP:
   - Also provides methods for determining whether and where a response was
     redirected.
 
+- Var
+  - Usage:  `$this->_browser->getVar($var)`
+  - Returns any variable that has been added to the action's var holder (made
+    accessible to the view).
+
 - ViewCache
   - Usage:  `$this->_browser->getViewCache()`
   - Makes accessible the view cache manager (`sfViewCacheManager`).
 
-The Form, Mailer and ViewCache plugins are not used that frequently and need
-  to be activated before they can be used (by calling
+The Form, Mailer, Var and ViewCache plugins are not used that frequently and
+  need to be activated before they can be used (by calling
   `$this->_browser->usePlugin('...')`; see individual plugin sections for
   more information).
 
@@ -640,13 +645,64 @@ To access a submitted form, use the Form plugin:
 * As it is not used very often, the Form plugin is not enabled by default.  To
   use it in your test, call `$this->_browser->usePlugin('form')`.
 
-* The Form plugin will only fetch a single `sfForm` instance from the action
-  stack.  If an action utilizes more than one bound form, this plugin will only
-  return one of them (whichever one was assigned to the action's variable holder
-  first).
+* By default, the Form plugin will only fetch a single *bound* `sfForm` instance
+  from the action stack.  If an action utilizes more than one bound form, this
+  plugin will only return one of them (whichever one was assigned to the
+  action's variable holder first).
 
-* If a form is not added to the action's variable holder (e.g., by assigning it
-  to `$this->form` in the action), it will not be accessible to JPUP.
+  If you need to retrieve a specific form instance, you can pass its name to
+  `getForm()`.  As an example, consider the following action:
+
+        # sf_apps_dir/frontend/modules/feedback/actions/actions.class.php
+
+        class feedbackActions extends sfActions
+        {
+          public function executeContact( sfWebRequest $request )
+          {
+            $this->cForm   = new ContactForm();
+            $this->riForm  = new ReportIssueForm();
+
+            if( $request->getMethod() == sfWebRequest::POST )
+            {
+              $this->cForm->bind(
+                $request->getPostParameter($this->cForm->getName())
+              );
+
+              ...
+
+              $this->riForm->bind(
+                $request->getPostParameter($this->riForm->getName())
+              );
+            }
+
+            ...
+          }
+        }
+
+  To interact with the `ReportIssueForm` instance in your test case, you would
+  need to access it like this:
+
+        # sf_test_dir/functional/frontend/feedback/contact.php
+
+        class frontend_feedback_contactTest extends Test_Case_Functional
+        {
+          protected
+            $_application = 'frontend',
+            $_url         = '/contact';
+
+          public function testReportIssue(  )
+          {
+            $this->_browser->usePlugin('form');
+
+            $this->_browser->post($this->_url, array(...));
+            $this->assertStatusCode(200);
+
+            /* Extract the ReportIssueForm from the context. */
+            $form = $this->_browser->getForm('riForm');
+
+            ...
+          }
+        }
 
 #### Testing Emails
 To interact with Symfony's built in mailer, use the Mailer plugin:
@@ -778,16 +834,16 @@ Fortunately, the Error plugin makes it easy to get information (including a
               )
             ));
 
-        /* For some reason, the request is generating a 500 error.  Find out what
-         *  the problem is:
+        /* For some reason, the request is generating a 500 error.  Find out
+         *  what the problem is:
          */
         echo
           PHP_EOL, PHP_EOL, $this->_browser->getError()
           PHP_EOL, PHP_EOL, $this->_browser->getError()->getTraceAsString();
 
 
-        /* This assertion will still fail, but not before we get to see what's going
-         *  on.
+        /* This assertion will still fail, but not before we get to see what's
+         *  going on.
          */
         $this->assertStatusCode(200);
       }
@@ -796,6 +852,52 @@ Fortunately, the Error plugin makes it easy to get information (including a
 * Since 500 errors are generally not considered to be desirable behavior, you
   will probably end up using this plugin to debug your application rather than
   as part of a test or assertion.
+
+#### Inspecting View Variables
+Often in conjunction with troubleshooting 500 errors, it can be useful to
+  inspect variables that are sent to the view.
+
+To extract a variable from the test browser context, use the Var plugin:
+
+    # sf_apps_dir/frontend/modules/main/actions/actions.class.php
+
+    class mainActions extends sfActions
+    {
+      public function executeCategory( sfWebRequest $request )
+      {
+        $cat = $request->getParameter('category');
+        ...
+        $this->listings = ListingTable::getInstance()->findByCategory($cat);
+      }
+    }
+
+    # sf_test_dir/functional/frontend/main/category.php
+
+    class frontend_main_categoryTest extends Test_Case_Functional
+    {
+      protected
+        $_application = 'frontend',
+        $_url         = '/category';
+
+      public function testValidCategory(  )
+      {
+        $this->_browser->usePlugin('var');
+
+        $this->_browser->get($this->_url, array('category' => 'foo'));
+        $this->assertStatusCode(200);
+
+        /* Extract listings that were sent to the view. */
+        $listings = $this->_browser->getVar('listings');
+      }
+    }
+
+* The Var plugin interacts with the action's var holder.  If a variable is not
+  added to the var holder, the Var plugin will not be able to find it (for
+  example, the `$cat` variable in the above example is not accessible to the
+  test).
+
+* As it is not used very often, the Var plugin is not enabled by default.
+  To use it in your test, call `$this->_browser->usePlugin('var')`.
 
 #### Inspecting Log Messages
 Occasionally, it can be useful to look at the log messages generated by a

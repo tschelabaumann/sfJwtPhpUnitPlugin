@@ -21,14 +21,18 @@
  * THE SOFTWARE.
  */
 
-/** Exposes the sfForm instance bound to the request.
+/** Extracts a view variable from the requested action.
+ *
+ * In order for this plugin to be able to extract a variable, that variable must
+ *  be added to the action's var holder (e.g., by setting $this->varname = '...'
+ *  in the action).
  *
  * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
  */
-class Test_Browser_Plugin_Form extends Test_Browser_Plugin
+class Test_Browser_Plugin_Var extends Test_Browser_Plugin
 {
   /** Returns the name of the accessor that will invoke this plugin.
    *
@@ -39,47 +43,26 @@ class Test_Browser_Plugin_Form extends Test_Browser_Plugin
    */
   public function getMethodName(  )
   {
-    return 'getForm';
+    return 'getVar';
   }
 
-  /** Returns a reference to an sfForm instance from the action stack.
+  /** Returns a reference to specified variable.
    *
-   * @param string $var Specify the name of the variable to retrieve.  If null,
-   *  the first bound form in the action will be returned (if one exists).
+   * @param string $var The name of the variable to return.
    *
-   * @return sfForm Note:  If no form object can be found, this method returns
+   * @return mixed Note:  If the variable can't be found, this method returns
    *  null.
    */
   public function invoke( $var = null )
   {
-    /** @var $Action sfAction */
     /** @noinspection PhpUndefinedMethodInspection */
-    $Action =
+    return
       $this->getBrowser()
         ->getContext()
-          ->getActionStack()
-          ->getLastEntry()
-            ->getActionInstance();
-
-    if( $var )
-    {
-      if( $form = $Action->getVar($var) and ($form instanceof sfForm) )
-      {
-        return $form;
-      }
-    }
-    else
-    {
-      foreach( $Action->getVarHolder()->getAll() as $name => $value )
-      {
-        /** @noinspection PhpUndefinedMethodInspection */
-        if( ($value instanceof sfForm) and $value->isBound() )
-        {
-          return $value;
-        }
-      }
-    }
-
-    return null;
+        ->getActionStack()
+        ->getLastEntry()
+        ->getActionInstance()
+        ->getVarHolder()
+        ->get($var);
   }
 }
