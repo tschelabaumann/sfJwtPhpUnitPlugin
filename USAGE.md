@@ -650,8 +650,8 @@ To access a submitted form, use the Form plugin:
   plugin will only return one of them (whichever one was assigned to the
   action's variable holder first).
 
-  If you need to retrieve a specific form instance, you can pass its name to
-  `getForm()`.  As an example, consider the following action:
+    If you need to retrieve a specific form instance, you can pass its name to
+    `getForm()`.  As an example, consider the following action:
 
         # sf_apps_dir/frontend/modules/feedback/actions/actions.class.php
 
@@ -679,8 +679,8 @@ To access a submitted form, use the Form plugin:
           }
         }
 
-  To interact with the `ReportIssueForm` instance in your test case, you would
-  need to access it like this:
+    To interact with the `ReportIssueForm` instance in your test case, you would
+    need to access it like this:
 
         # sf_test_dir/functional/frontend/feedback/contact.php
 
