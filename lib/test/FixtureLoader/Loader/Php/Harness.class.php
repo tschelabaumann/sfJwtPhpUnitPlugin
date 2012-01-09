@@ -67,7 +67,13 @@ abstract class Test_FixtureLoader_Loader_Php_Harness extends Test_Harness
    */
   public function loadFixture( $file, $force = false, $plugin = true )
   {
-    if( $plugin === true )
+    /* Shortcut:  Allow calling loadFixture($fixture, $plugin). */
+    if( is_string($force) )
+    {
+      $plugin = $force;
+      $force  = false;
+    }
+    elseif( $plugin === true )
     {
       $plugin = $this->_plugin;
     }
@@ -85,7 +91,13 @@ abstract class Test_FixtureLoader_Loader_Php_Harness extends Test_Harness
    */
   public function loadProductionFixture( $file, $force = false, $plugin = true )
   {
-    if( $plugin === true )
+    /* Shortcut:  Allow calling loadProductionFixture($fixture, $plugin). */
+    if( is_string($force) )
+    {
+      $plugin = $force;
+      $force  = false;
+    }
+    elseif( $plugin === true )
     {
       $plugin = $this->_plugin;
     }
