@@ -182,7 +182,13 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   protected function loadFixture( $fixture, $force = false, $plugin = true )
   {
-    if( $plugin === true )
+    /* Shortcut:  Allow calling loadFixture($fixture, $plugin). */
+    if( is_string($force) )
+    {
+      $plugin = $force;
+      $force  = false;
+    }
+    elseif( $plugin === true )
     {
       $plugin = $this->_plugin;
     }
@@ -214,7 +220,13 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $plugin   = true
   )
   {
-    if( $plugin === true )
+    /* Shortcut:  Allow calling loadProductionFixture($fixture, $plugin). */
+    if( is_string($force) )
+    {
+      $plugin = $force;
+      $force  = false;
+    }
+    elseif( $plugin === true )
     {
       $plugin = $this->_plugin;
     }
