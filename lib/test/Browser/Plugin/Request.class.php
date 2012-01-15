@@ -90,7 +90,7 @@ class Test_Browser_Plugin_Request extends Test_Browser_Plugin
 
   /** Returns a reference to the request object from the browser context.
    *
-   * @return Test_Browser_Plugin_Request($this)
+   * @return $this
    */
   public function invoke(  )
   {

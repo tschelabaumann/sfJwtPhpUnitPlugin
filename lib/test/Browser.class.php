@@ -61,11 +61,12 @@
  *
  * @method Test_Browser_Plugin_Content    getContent()
  * @method Test_Browser_Plugin_Error      getError()
- * @method Test_Browser_Plugin_Form       getForm()
+ * @method sfForm                         getForm()
  * @method Test_Browser_Plugin_Logger     getLogger()
  * @method Test_Browser_Plugin_Mailer     getMailer()
  * @method Test_Browser_Plugin_Request    getRequest()
  * @method Test_Browser_Plugin_Response   getResponse()
+ * @method mixed                          getVar()
  * @method Test_Browser_Plugin_ViewCache  getViewCache()
  */
 class Test_Browser extends Test_ObjectWrapper

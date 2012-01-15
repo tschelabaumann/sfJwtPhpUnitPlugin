@@ -42,8 +42,8 @@
  * @method string[] getHttpMetas()
  * @method string   getTitle()
  * @method string[] getPositions()
- * @method string[] getStylesheets(string $position = sfWebRequest::ALL)
- * @method string[] getJavascripts(string $position = sfWebRequest::ALL)
+ * @method string[] getStylesheets(string $position = sfWebResponse::ALL)
+ * @method string[] getJavascripts(string $position = sfWebResponse::ALL)
  * @method string[] getSlots()
  * @method string[] getCookies()
  * @method string[] getHttpHeaders()
@@ -66,7 +66,7 @@ class Test_Browser_Plugin_Response extends Test_Browser_Plugin
 
   /** Returns a reference to the response object from the browser context.
    *
-   * @return Test_Browser_Plugin_Response($this)
+   * @return $this
    */
   public function invoke(  )
   {

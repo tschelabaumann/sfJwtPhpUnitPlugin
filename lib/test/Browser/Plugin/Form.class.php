@@ -27,39 +27,6 @@
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
- *
- * Partial list of methods exposed for the encapsulated sfForm object (other
- *  methods are available, but they are not read-only and are probably not
- *  useful for testing):
- *
- * @method string                 __toString()
- * @method boolean                hasGlobalErrors()
- * @method array                  getGlobalErrors()
- * @method boolean                isBound()
- * @method string[]               getTaintedValues()
- * @method boolean                isValid()
- * @method boolean                hasErrors()
- * @method string[]               getValues()
- * @method mixed                  getValue(string $field)
- * @method string|boolean         getName()
- * @method sfValidatorErrorSchema getErrorSchema()
- * @method sfForm[]               getEmbeddedForms()
- * @method sfForm                 getEmbeddedForm(string $name)
- * @method sfValidatorBase        getValidator(string $name)
- * @method sfValidatorSchema      getValidatorSchema()
- * @method sfWidgetForm           getWidget(string $name)
- * @method sfWidgetFormSchema     getWidgetSchema()
- * @method string[]               getStylesheets()
- * @method string[]               getJavaScripts()
- * @method array                  getOptions()
- * @method mixed                  getOption(string $name, mixed $default = null)
- * @method string                 getDefault(string $name)
- * @method boolean                hasDefault(string $name)
- * @method string[]               getDefaults()
- * @method string                 getCSRFToken(string $secret = null)
- * @method boolean                isCSRFProtected()
- * @method boolean                isMultipart()
- * @method sfFormFieldSchema      getFormFieldSchema()
  */
 class Test_Browser_Plugin_Form extends Test_Browser_Plugin
 {
@@ -75,33 +42,44 @@ class Test_Browser_Plugin_Form extends Test_Browser_Plugin
     return 'getForm';
   }
 
-  /** Returns a reference to the sfForm instance from the action stack.
+  /** Returns a reference to an sfForm instance from the action stack.
    *
-   * Note:  If no form was submitted, this method returns null.
+   * @param string $var Specify the name of the variable to retrieve.  If null,
+   *  the first bound form in the action will be returned (if one exists).
    *
-   * @return Test_Browser_Plugin_Form($this)|null
+   * @return sfForm Note:  If no form object can be found, this method returns
+   *  null.
    */
-  public function invoke(  )
+  public function invoke( $var = null )
   {
-    if( ! $this->hasEncapsulatedObject() )
-    {
-      /** @var $Action sfAction */
-      $Action =
-        $this->getBrowser()
-          ->getContext()
-            ->getActionStack()
-            ->getLastEntry()
-              ->getActionInstance();
+    /** @var $Action sfAction */
+    /** @noinspection PhpUndefinedMethodInspection */
+    $Action =
+      $this->getBrowser()
+        ->getContext()
+          ->getActionStack()
+          ->getLastEntry()
+            ->getActionInstance();
 
+    if( $var )
+    {
+      if( $form = $Action->getVar($var) and ($form instanceof sfForm) )
+      {
+        return $form;
+      }
+    }
+    else
+    {
       foreach( $Action->getVarHolder()->getAll() as $name => $value )
       {
-        if( $value instanceof sfForm and $value->isBound() )
+        /** @noinspection PhpUndefinedMethodInspection */
+        if( ($value instanceof sfForm) and $value->isBound() )
         {
-          $this->setEncapsulatedObject($value);
+          return $value;
         }
       }
     }
 
-    return $this->hasEncapsulatedObject() ? $this : null;
+    return null;
   }
 }
