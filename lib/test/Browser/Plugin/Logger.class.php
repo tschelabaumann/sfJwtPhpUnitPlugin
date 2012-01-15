@@ -39,9 +39,8 @@
  */
 class Test_Browser_Plugin_Logger extends Test_Browser_Plugin
 {
-  protected
-    /** @var Test_Browser_Listener_VarLogger */
-    $_listener;
+  /** @var Test_Browser_Listener_VarLogger */
+  protected $_listener;
 
   /** Initialize the plugin.
    */
@@ -65,7 +64,7 @@ class Test_Browser_Plugin_Logger extends Test_Browser_Plugin
 
   /** Invokes the plugin.
    *
-   * @return Test_Browser_Plugin_Logger($this)
+   * @return $this
    */
   public function invoke(  )
   {

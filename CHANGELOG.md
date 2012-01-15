@@ -1,3 +1,19 @@
+# 1.0.9
+## Issues
+- [#33] Added `Test_Case->runTask()`.
+
+## Major Changes
+- Allow calling `loadFixture($fixture, $plugin)` and
+  `loadProductionFixture($fixture, $plugin)` in test cases and PHP fixtures.
+- `Test_Browser_Plugin_Form->invoke()` now returns an `sfForm` instance, added
+  `$var` argument.
+- Added `Test_Browser_Plugin_Var`.
+- Removed from API: `Test_Case->verifyTestDatabaseConnection()`.
+- Removed from API: `Test_Case->validateUploadsDir()`.
+
+## Minor Changes
+- Minor comment and documentation updates.
+
 # 1.0.8
 ## Issues
 - [#1] Expanded compatibility section.  There; I updated the README.

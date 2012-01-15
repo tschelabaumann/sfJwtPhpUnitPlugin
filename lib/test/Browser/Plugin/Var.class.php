@@ -21,22 +21,18 @@
  * THE SOFTWARE.
  */
 
-/** Exposes the Exception generated during a failed request.
+/** Extracts a view variable from the requested action.
+ *
+ * In order for this plugin to be able to extract a variable, that variable must
+ *  be added to the action's var holder (e.g., by setting $this->varname = '...'
+ *  in the action).
  *
  * @author Phoenix Zerin <phoenix@todofixthis.com>
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.browser.plugin
- *
- * @method string getMessage()
- * @method mixed  getCode()
- * @method string getFile()
- * @method int    getLine()
- * @method array  getTrace()
- * @method string getTraceAsString()
- * @method string __toString()
  */
-class Test_Browser_Plugin_Error extends Test_Browser_Plugin
+class Test_Browser_Plugin_Var extends Test_Browser_Plugin
 {
   /** Returns the name of the accessor that will invoke this plugin.
    *
@@ -47,34 +43,26 @@ class Test_Browser_Plugin_Error extends Test_Browser_Plugin
    */
   public function getMethodName(  )
   {
-    return 'getError';
+    return 'getVar';
   }
 
-  /** Returns a reference to the uncaught exception from the application.
+  /** Returns a reference to specified variable.
    *
-   * @return $this
-   */
-  public function invoke(  )
-  {
-    if( ! $this->hasEncapsulatedObject() )
-    {
-      if( ! $this->getBrowser()->checkCurrentExceptionIsEmpty() )
-      {
-        $this->setEncapsulatedObject(
-          $this->getBrowser()->getCurrentException()
-        );
-      }
-    }
-
-    return $this;
-  }
-
-  /** Return a string representation of the error (i.e., the error message).
+   * @param string $var The name of the variable to return.
    *
-   * @return string
+   * @return mixed Note:  If the variable can't be found, this method returns
+   *  null.
    */
-  public function __toString(  )
+  public function invoke( $var = null )
   {
-    return (string) $this->getMessage();
+    /** @noinspection PhpUndefinedMethodInspection */
+    return
+      $this->getBrowser()
+        ->getContext()
+        ->getActionStack()
+        ->getLastEntry()
+        ->getActionInstance()
+        ->getVarHolder()
+        ->get($var);
   }
 }

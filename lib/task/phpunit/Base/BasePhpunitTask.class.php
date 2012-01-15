@@ -27,6 +27,8 @@
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.task.phpunit.base
+ *
+ * @property sfCommandApplication $commandApplication
  */
 abstract class BasePhpunitTask extends sfBaseTask
 {
