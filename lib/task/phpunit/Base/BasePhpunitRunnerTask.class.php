@@ -164,6 +164,11 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
       $Suite = new PHPUnit_Framework_TestSuite(ucfirst($this->name) . ' Tests');
       $Suite->addTestFiles($files);
 
+      /* Inject the command application controller so that it is accessible to
+       *  test cases.
+       */
+      Test_Case::setController($this->commandApplication);
+
       /* Ignition... */
       try
       {

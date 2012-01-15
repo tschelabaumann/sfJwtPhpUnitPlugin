@@ -50,6 +50,9 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $_defaultApplication,
     $_configs;
 
+  /** @var sfCommandApplication */
+  static private $_controller;
+
   protected
     /** The name of the application configuration to load for this test case.
      *
@@ -96,6 +99,17 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $old = self::$_defaultApplication;
     self::$_defaultApplication = (string) $application;
     return $old;
+  }
+
+  /** Sets the task controller object for this test (for {@see runTask()}).
+   *
+   * @param $controller sfCommandApplication
+   *
+   * @return void
+   */
+  static public function setController( sfCommandApplication $controller )
+  {
+    self::$_controller = $controller;
   }
 
   /** Init the class instance.
@@ -409,20 +423,19 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     array $opts = array()
   )
   {
-    $app = new sfSymfonyCommandApplication(
-      new sfEventDispatcher(),
-      null,
-      array(
-        'symfony_lib_dir' => sfConfig::get('sf_symfony_lib_dir')
-      )
-    );
+    if( ! self::$_controller )
+    {
+      throw new RuntimeException(
+        'Task runner does not exist at runtime!  This is an internal error with sfJwtPhpUnitPlugin; please file a bug report.'
+      );
+    }
 
-    if( $task = $app->getTaskToExecute($name) )
+    if( $task = self::$_controller->getTaskToExecute($name) )
     {
       if( $task instanceof sfCommandApplicationTask )
       {
         /** @var $task sfCommandApplicationTask */
-        $task->setCommandApplication($app);
+        $task->setCommandApplication(self::$_controller);
       }
 
       return $task->run($args, $opts);
