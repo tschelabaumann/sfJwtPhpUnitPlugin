@@ -507,9 +507,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
     if( sfConfig::get('sf_error_reporting') !== (E_ALL | E_STRICT) )
     {
-      self::_halt('error_reporting should be set to %d (%s) in settings.yml.',
+      self::_halt('error_reporting should be set to %d (%s) in %s.',
         (E_ALL | E_STRICT),
-        'E_ALL | E_STRICT' // Split out for easy editing if necessary.
+        'E_ALL | E_STRICT', // Split out for easy editing if necessary.
+        $this->_getSettingsFilename()
       );
     }
   }
@@ -574,13 +575,16 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       $this->_assertTestEnvironment();
 
       $config = sfConfigHandler::replaceConstants(sfYaml::load(
-        sfConfig::get('sf_app_dir') . '/config/settings.yml'
+        $this->_getSettingsFilename()
       ));
 
       /* Determine whether a test uploads directory has been specified. */
       if( ! isset($config['test']['.settings']['upload_dir']) )
       {
-        self::_halt('Please specify a "test" value for sf_upload_dir in settings.yml.');
+        self::_halt(sprintf(
+          'Please specify a "test" value for sf_upload_dir in %s.',
+            $this->_getSettingsFilename()
+        ));
       }
 
       $test = $config['test']['.settings']['upload_dir'];
@@ -610,7 +614,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
       if( $prod == $test )
       {
-        self::_halt('Please specify a *separate* "test" value for sf_upload_dir in settings.yml.');
+        self::_halt(sprintf(
+          'Please specify a *separate* "test" value for sf_upload_dir in %s.',
+            $this->_getSettingsFilename()
+        ));
       }
 
       /* Check the directory itself to make sure it's valid. */
@@ -626,6 +633,15 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
       self::$_uploadsDirCheck = true;
     }
+  }
+
+  /** Returns the name of the settings file for the application context.
+   *
+   * @return string
+   */
+  protected function _getSettingsFilename(  )
+  {
+    return (sfConfig::get('sf_app_dir') . '/config/settings.yml');
   }
 
   /** Halts test script execution.
