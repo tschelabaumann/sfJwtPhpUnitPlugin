@@ -456,8 +456,8 @@ For example, suppose you wanted to write a functional test against an action
 
     # sf_apps_dir/frontend/config/routing.yml
 
-    account_show:
-      url:          /account/:username
+    account_contact:
+      url:          /account/contact/:username
       class:          sfDoctrineRoute
       options:
         model:        sfGuardUser
@@ -466,14 +466,14 @@ For example, suppose you wanted to write a functional test against an action
         module:       account
         action:       show
       requirements:
-        sf_method:    [get]
+        sf_method:    [get,post]
 
 The functional test might look something like this:
 
-    # sf_test_dir/functional/frontend/account/show.php
+    # sf_test_dir/functional/frontend/account/contact.php
 
     <?php
-    class frontend_account_showTest extends Test_Case_Functional
+    class frontend_account_contactTest extends Test_Case_Functional
     {
       public function testViewUserProfile(  )
       {
@@ -482,18 +482,69 @@ The functional test might look something like this:
         $user->save();
 
         /* You can pass the URI directly just like for sfTestFunctional: */
-        $this->_browser->get('/account/' . $user->getUsername());
+        $this->_browser->get('/account/contact/' . $user->getUsername());
         $this->assertStatusCode(200);
 
         /* Or use the route name and parameters: */
-        $this->_browser->get('@account_show?username=' . $user->getUsername());
+        $this->_browser->get('@account_contact?username=' . $user->getUsername());
         $this->assertStatusCode();
 
         /* Or pass an array of route parameters: */
         $this->_browser->get(array(
-          'sf_route'    => 'account_show',
+          'sf_route'    => 'account_contact',
           'sf_subject'  => $user
         ));
+        $this->assertStatusCode(200);
+      }
+    }
+
+#### Query String Parameters
+
+Because `Test_Browser` is based on `sfBrowser`, its `call()` method also accepts
+  a `$parameters` argument, but note that these parameters are added to the
+  request *after* parsing the route.
+
+It is recommended that you only use `$parameters` to specify `POST` data:
+
+    # sf_test_dir/functional/frontend/account/contact.php
+
+    <?php
+    class frontend_account_contactTest extends Test_Case_Functional
+    {
+      public function testSendUserAnEmail(  )
+      {
+        $user = new sfGuardUser();
+        ...
+        $user->save();
+
+        try
+        {
+          /* This will cause an error because the 'username' parameter will not
+           *  get included when parsing the route:
+           */
+          $this->_browser->post('@account_contact' array(
+            'username'  => $user->username,
+            'message'   => 'Hello, username!'
+          ));
+
+          $this->fail(
+            'Expected exception when required route parameter is missing.'
+          );
+        }
+        catch( InvalidArgumentException $e )
+        {
+        }
+
+        /* This will work as expected: */
+        $this->_browser->post(
+          array(
+            'sf_route'    => 'account_show',
+            'sf_subject'  => $user
+          ),
+          array(
+            'message'     => 'Hello, username!'
+          )
+        );
         $this->assertStatusCode(200);
       }
     }
