@@ -291,7 +291,7 @@ Here is an example of a functional test class:
         $email    = 'tester@jwt.com';
 
         /* Send browser to the registration form page. */
-        $this->_browser->get('/account/register');
+        $this->_browser->get('@account_register');
         $this->assertStatusCode(200);
 
         /* Simulate form submission. */
@@ -445,6 +445,110 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
 
     ./symfony phpunit:generate-functional --token='package:MyAwesomeProject' main/index
 
+### Requesting URLs
+
+`Test_Browser->call()` accepts the same format for URIs as the `url_for()`
+  helper, so you can pass in a URI, a route name or even an array of routing
+  parameters.
+
+For example, suppose you wanted to write a functional test against an action
+  that has the following entry in `routing.yml`:
+
+    # sf_apps_dir/frontend/config/routing.yml
+
+    account_contact:
+      url:          /account/contact/:username
+      class:          sfDoctrineRoute
+      options:
+        model:        sfGuardUser
+        type:         object
+      param:
+        module:       account
+        action:       show
+      requirements:
+        sf_method:    [get,post]
+
+The functional test might look something like this:
+
+    # sf_test_dir/functional/frontend/account/contact.php
+
+    <?php
+    class frontend_account_contactTest extends Test_Case_Functional
+    {
+      public function testViewUserProfile(  )
+      {
+        $user = new sfGuardUser();
+        ...
+        $user->save();
+
+        /* You can pass the URI directly just like for sfTestFunctional: */
+        $this->_browser->get('/account/contact/' . $user->getUsername());
+        $this->assertStatusCode(200);
+
+        /* Or use the route name and parameters: */
+        $this->_browser->get('@account_contact?username=' . $user->getUsername());
+        $this->assertStatusCode();
+
+        /* Or pass an array of route parameters: */
+        $this->_browser->get(array(
+          'sf_route'    => 'account_contact',
+          'sf_subject'  => $user
+        ));
+        $this->assertStatusCode(200);
+      }
+    }
+
+#### Query String Parameters
+
+Because `Test_Browser` is based on `sfBrowser`, its `call()` method also accepts
+  a `$parameters` argument, but note that these parameters are added to the
+  request *after* parsing the route.
+
+It is recommended that you only use `$parameters` to specify `POST` data:
+
+    # sf_test_dir/functional/frontend/account/contact.php
+
+    <?php
+    class frontend_account_contactTest extends Test_Case_Functional
+    {
+      public function testSendUserAnEmail(  )
+      {
+        $user = new sfGuardUser();
+        ...
+        $user->save();
+
+        try
+        {
+          /* This will cause an error because the 'username' parameter will not
+           *  get included when parsing the route:
+           */
+          $this->_browser->post('@account_contact' array(
+            'username'  => $user->username,
+            'message'   => 'Hello, username!'
+          ));
+
+          $this->fail(
+            'Expected exception when required route parameter is missing.'
+          );
+        }
+        catch( InvalidArgumentException $e )
+        {
+        }
+
+        /* This will work as expected: */
+        $this->_browser->post(
+          array(
+            'sf_route'    => 'account_show',
+            'sf_subject'  => $user
+          ),
+          array(
+            'message'     => 'Hello, username!'
+          )
+        );
+        $this->assertStatusCode(200);
+      }
+    }
+
 ### Signing In
 Testing applications that require login is a tricky proposition.  It's easy
   enough to sign a user in, but every time the browser makes a request, it
@@ -460,11 +564,11 @@ Testing applications that require login is a tricky proposition.  It's easy
     class frontend_admin_dashboardTest extends Test_Case_Functional
     {
       protected
-        $_url = '/admin/dashboard';
+        $_route = '@admin_dashboard';
 
       public function testMustBeLoggedIn(  )
       {
-        $this->_browser->get($this->_url);
+        $this->_browser->get($this->_route);
         $this->assertStatusCode(401);
       }
 
@@ -473,13 +577,13 @@ Testing applications that require login is a tricky proposition.  It's easy
         $this->loadFixture('admin_user.php');
         $this->_browser->signin('administrator');
 
-        $this->_browser->get($this->_url);
+        $this->_browser->get($this->_route);
         $this->assertStatusCode(200);
       }
 
       public function testSigninOnlyLastsForTheDurationOfTheTest(  )
       {
-        $this->_browser->get($this->_url);
+        $this->_browser->get($this->_route);
         $this->assertStatusCode(401);
       }
     }
@@ -572,7 +676,7 @@ A number of applications expose services that return serialized or JSON-encoded
     {
       public function testSuccess(  )
       {
-        $this->_browser->post('/do/like', array(
+        $this->_browser->post('@like', array(
           'user_id'     => '1',
           'object_id'   => '123'
         ));
@@ -620,7 +724,7 @@ To access a submitted form, use the Form plugin:
         /* The Form plugin has to be activated before it can be used. */
         $this->_browser->usePlugin('form');
 
-        $this->_browser->get('/contactus/reportissue');
+        $this->_browser->get('@reportissue');
         $this->assertStatusCode(200);
 
         $this->_browser->click('Submit', array(
@@ -688,7 +792,7 @@ To access a submitted form, use the Form plugin:
         {
           protected
             $_application = 'frontend',
-            $_url         = '/contact';
+            $_url         = '@contactus';
 
           public function testReportIssue(  )
           {
@@ -720,7 +824,7 @@ To interact with Symfony's built in mailer, use the Mailer plugin:
         $email = 'functional_tester@jwt.com';
 
         $this->_browser
-          ->get('/contactus/reportissue')
+          ->get('@reportissue')
           ->click('Submit', array(
               'issue' => array(
                 'firstname'   => 'Functional',
@@ -774,7 +878,7 @@ The Request and Response plugins provide access to forwarding and redirecting
     {
       public function testSubmission(  )
       {
-        $this->_browser->get('/contactus/reportissue');
+        $this->_browser->get('@reportissue');
         $this->assertStatusCode(200);
 
         $this->_browser->click('Submit', array(...));
@@ -790,7 +894,7 @@ The Request and Response plugins provide access to forwarding and redirecting
 
       public function testForwardIfNoSubmission(  )
       {
-        $this->_browser->get('/contactus/reportissue/thankyou');
+        $this->_browser->get('@reportissue_confirmation');
 
         $this->assertEquals(
           'contactus/reportissue',
@@ -824,7 +928,7 @@ Fortunately, the Error plugin makes it easy to get information (including a
       public function testSuccess(  )
       {
         $this->_browser
-          ->get('/contactus/reportissue')
+          ->get('@reportissue')
           ->click('Submit', array(
               'issue' => array(
                 'firstname'   => 'Functional',
@@ -877,13 +981,13 @@ To extract a variable from the test browser context, use the Var plugin:
     {
       protected
         $_application = 'frontend',
-        $_url         = '/category';
+        $_route       = '@category_view';
 
       public function testValidCategory(  )
       {
         $this->_browser->usePlugin('var');
 
-        $this->_browser->get($this->_url, array('category' => 'foo'));
+        $this->_browser->get($this->_route, array('category' => 'foo'));
         $this->assertStatusCode(200);
 
         /* Extract listings that were sent to the view. */
@@ -926,7 +1030,7 @@ Once the logger has been injected, you can inspect the log messages generated by
         $this->_browser->usePlugin('logger');
 
         $this->_browser
-          ->get('/contactus/reportissue')
+          ->get('@reportissue')
           ->click('Submit', array(
               'issue' => array(
                 'firstname'   => 'Functional',
@@ -1002,7 +1106,7 @@ As an example, consider this test which checks to see if an event handler can
         ));
 
         /* Simulate submission of login form. */
-        $this->_browser->post('/auth/signin', array(
+        $this->_browser->post('@signin', array(
           'username'  => 'foo',
           'password'  => 'bar'
         ));
@@ -1023,7 +1127,7 @@ As an example, consider this test which checks to see if an event handler can
       public function _blockSignin( sfEvent $event )
       {
         $event->setReturnValue(false);
-      };
+      }
     }
 
 `Test_Browser_Listener_Callback->__construct()` accepts a single event name and
@@ -1031,7 +1135,10 @@ As an example, consider this test which checks to see if an event handler can
 
     $this->_browser->addListener(new Test_Browser_Listener_Callback(
       'context.load_factories',
+        /* Call $this->_initContext() when factories are loaded: */
         array($this, '_initContext'),
+
+        /* Call static method MyClass::doSomething(): */
         array('MyClass', 'doSomething'),
 
         /* PHP 5.3 closures are also supported: */
@@ -1411,6 +1518,9 @@ After generating the export files, we flush the database and load a new
     <?php
     class backend_migrate_indexTest extends Test_Case_Functional
     {
+      protected
+        $_application = 'backend';
+
       public function testContentMigration(  )
       {
         /* Init the source environment. */
@@ -1418,7 +1528,7 @@ After generating the export files, we flush the database and load a new
         sfConfig::set('app_which_env', 'test-');
 
         /* Generate content migration files. */
-        $this->_browser->get('/backend.php/migrate/export', array(
+        $this->_browser->get('@migrate_export', array(
           'site_id' => '1',
           'dest'    => 'test2-'
         ));
@@ -1433,7 +1543,7 @@ After generating the export files, we flush the database and load a new
         sfConfig::set('app_which_env', 'test2-');
 
         /* Load content migration files into destination. */
-        $this->_browser->get('/backend.php/migrate/import', array(
+        $this->_browser->get('@migrate_import', array(
           'site_id' => '1',
           'from'    => 'test-'
         ));
@@ -1494,7 +1604,7 @@ If you need to clear out the uploads directory mid-test, you can call
       {
         /* User uploads an avatar as normal. */
         $this->_browser
-          ->get('/account/profile/avatar')
+          ->get('@profile_avatar')
           ->click('Submit', array(
               'avatar' => sfConfig::get('sf_fixture_dir') . '/uploads/me.jpg'
             ));
