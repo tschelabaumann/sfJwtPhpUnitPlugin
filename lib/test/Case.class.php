@@ -35,7 +35,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 {
   const
     ERR_HEADER =
-      '*** Halting execution to prevent corrupting production data! ***',
+      '*** Test environment needs to be updated before running tests! ***',
 
     DEFAULT_APPLICATION = 'frontend',
     DEFAULT_ENVIRONMENT = 'test',
@@ -357,7 +357,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     {
       /* Set custom sfConfig values here. */
       sfConfig::add(array(
-        'sf_fixture_dir'  =>
+        'sf_fixture_dir'    =>
           $this->_fixtureLoader->getFixtureDir(false, $this->_plugin)
       ));
 
