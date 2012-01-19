@@ -98,7 +98,7 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param string,... $plugin_name
    *
-   * @return Test_Browser($this)
+   * @return $this
    */
   public function usePlugin( $plugin_name/*, ... */ )
   {
@@ -131,7 +131,7 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param string|sfGuardUser $user
    *
-   * @return Test_Browser($this)
+   * @return $this
    */
   public function signin( $user )
   {
@@ -179,7 +179,7 @@ class Test_Browser extends Test_ObjectWrapper
    * @param array  $parameters  The Request parameters
    * @param bool   $changeStack  Change the browser history stack?
    *
-   * @return Test_Browser($this)
+   * @return $this
    */
   public function get( $uri, $parameters = array(), $changeStack = true )
   {
@@ -192,7 +192,7 @@ class Test_Browser extends Test_ObjectWrapper
    * @param array  $parameters  The Request parameters
    * @param bool   $changeStack  Change the browser history stack?
    *
-   * @return Test_Browser($this)
+   * @return $this
    */
   public function post( $uri, $parameters = array(), $changeStack = true )
   {
@@ -206,10 +206,12 @@ class Test_Browser extends Test_ObjectWrapper
    * @param array  $parameters   The Request parameters
    * @param bool   $changeStack  Change the browser history stack?
    *
-   * @return Test_Browser($this)
+   * @return $this
    */
   public function call( $uri, $method = 'get', $parameters = array(), $changeStack = true )
   {
+    $uri = $this->genUrl($uri);
+
     /* @var $Plugin Test_Browser_Plugin */
     foreach( $this->_plugins as $Plugin )
     {
@@ -238,6 +240,29 @@ class Test_Browser extends Test_ObjectWrapper
     return $this;
   }
 
+  /** Converts routing info into a functional-test-compatible URI for the
+   *    current application.
+   *
+   * @param mixed $uri URI, route name or parameters.
+   *
+   * @return string
+   */
+  public function genUrl( $uri )
+  {
+    /** Ensure the browser context is available.
+     *
+     * @see sfBrowser::getContext()
+     */
+    $context = $this->getContext();
+
+    /** @see http://trac.symfony-project.org/ticket/3889 */
+    /** @noinspection PhpUndefinedMethodInspection */
+    $context->getRequest()->setRelativeUrlRoot('');
+
+    /** @noinspection PhpUndefinedMethodInspection */
+    return $context->getController()->genUrl($uri, false);
+  }
+
   /** Returns whether the browser has made a request yet.
    *
    * @return bool
@@ -251,7 +276,7 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param Test_Browser_Listener $listener
    *
-   * @return Test_Browser($this)
+   * @return $this
    */
   public function addListener( Test_Browser_Listener $listener )
   {
