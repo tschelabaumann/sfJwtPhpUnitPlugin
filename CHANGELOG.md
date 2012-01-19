@@ -1,4 +1,7 @@
 # 1.0.10
+## Issues
+- [#7] Provide full path to settings.yml file when misconfiguration is detected.
+
 ## Major Changes
 - Allow passing route names and parameter arrays to `Test_Browser->call()`.
 - Require `no_script_name` to be true before running functional tests.
