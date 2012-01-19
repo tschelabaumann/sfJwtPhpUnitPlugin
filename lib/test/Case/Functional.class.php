@@ -45,9 +45,10 @@ abstract class Test_Case_Functional extends Test_Case
   {
     if( ! sfConfig::get('sf_no_script_name') )
     {
-      self::_halt(
-        'Set the "no_script_name" property to false in settings.yml.'
-      );
+      self::_halt(sprintf(
+        'Set the "no_script_name" property to true in %s.',
+          $this->_getSettingsFilename()
+      ));
     }
 
     $this->_browser = new Test_Browser();
