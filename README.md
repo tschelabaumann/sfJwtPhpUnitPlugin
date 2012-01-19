@@ -1,11 +1,13 @@
-# 1.0.8 Update
+# 1.0.10 Update
 
-Please note that 1.0.8 introduces a change that is not backwards-compatible
-  with 1.0.7!
+Please note that 1.0.10 introduces a change that could break existing functional
+  tests!
 
-- JPUP 1.0.8 no longer auto-loads global test fixtures.  If you have defined any
-  fixtures in `sf_test_dir/fixtures/_global.*`, you will need to load them
-  manually in your test cases.
+- `Test_Browser->call()` now expects its `$uri` parameter to resolve to a valid
+    route.  If you are calling a route with required parameters, they *must* be
+    included in `$uri`, or else an `InvalidArgumentException` will be thrown.
+
+  See USAGE.md ("Query String Parameters") for more information.
 
 # sfJwtPhpUnitPlugin
 ## About
