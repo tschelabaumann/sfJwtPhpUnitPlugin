@@ -1,3 +1,8 @@
+# 1.0.10
+## Major Changes
+- Allow passing route names and parameter arrays to `Test_Browser->call()`.
+- Require `no_script_name` to be true before running functional tests.
+
 # 1.0.9
 ## Issues
 - [#33] Added `Test_Case->runTask()`.
