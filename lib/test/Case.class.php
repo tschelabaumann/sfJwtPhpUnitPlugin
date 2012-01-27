@@ -578,23 +578,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         $this->_getSettingsFilename()
       ));
 
-      /* Determine whether a test uploads directory has been specified. */
-      if( ! isset($config['test']['.settings']['upload_dir']) )
-      {
-        self::_halt(sprintf(
-          'Please specify a "test" value for sf_upload_dir in %s.',
-            $this->_getSettingsFilename()
-        ));
-      }
-
-      $test = $config['test']['.settings']['upload_dir'];
-
-      /* Make double-sure that we're actually using the test uploads dir. */
-      if( sfConfig::get('sf_upload_dir') != $test )
-      {
-        self::_halt('Symfony is not using the test upload dir setting.  Try symfony cc.');
-      }
-
       /* Determine whether a the test uploads directory is different than the
        *  production one.
        */
@@ -612,18 +595,31 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         $prod = sfConfig::get('sf_web_dir') . DIRECTORY_SEPARATOR . 'uploads';
       }
 
+      $test = sfConfig::get('sf_test_dir');
+
       if( $prod == $test )
       {
         self::_halt(sprintf(
-          'Please specify a *separate* "test" value for sf_upload_dir in %s.',
+          'Please specify a *separate* test value for sf_upload_dir in %s.',
             $this->_getSettingsFilename()
         ));
       }
 
       /* Check the directory itself to make sure it's valid. */
-      if( ! is_dir($test) )
+      if( ! file_exists($test) )
       {
-        self::_halt('Test upload directory (%s) does not exist or is not a directory.', $test);
+        /* If it doesn't exist, let's see if we can't create it. */
+        if( ! mkdir($test, 0777, true) )
+        {
+          self::_halt(
+            'Test upload directory (%s) does not exist.  Please create this directory before continuing.',
+            $test
+          );
+        }
+      }
+      elseif( ! is_dir($test) )
+      {
+        self::_halt('Test upload directory (%s) not a directory.', $test);
       }
 
       if( ! is_writable($test) )

@@ -2,3 +2,4 @@ test:
   .settings:
     error_reporting:  <?php echo (E_ALL | E_STRICT), PHP_EOL; ?>
     no_script_name:   true
+    upload_dir:       %SF_APP_CACHE_DIR%/uploads
