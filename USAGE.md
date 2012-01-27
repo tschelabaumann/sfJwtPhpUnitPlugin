@@ -454,7 +454,7 @@ Note that, just like `phpunit:generate-unit`, `phpunit:generate-functional`
 For example, suppose you wanted to write a functional test against an action
   that has the following entry in `routing.yml`:
 
-    # sf_apps_dir/frontend/config/routing.yml
+    # sf_app_config_dir/routing.yml
 
     account_contact:
       url:          /account/contact/:username
@@ -757,7 +757,7 @@ To access a submitted form, use the Form plugin:
     If you need to retrieve a specific form instance, you can pass its name to
     `getForm()`.  As an example, consider the following action:
 
-        # sf_apps_dir/frontend/modules/feedback/actions/actions.class.php
+        # sf_app_module_dir/feedback/actions/actions.class.php
 
         class feedbackActions extends sfActions
         {
@@ -963,7 +963,7 @@ Often in conjunction with troubleshooting 500 errors, it can be useful to
 
 To extract a variable from the test browser context, use the Var plugin:
 
-    # sf_apps_dir/frontend/modules/main/actions/actions.class.php
+    # sf_app_module_dir/main/actions/actions.class.php
 
     class mainActions extends sfActions
     {
@@ -1060,7 +1060,7 @@ You can work around this by instructing Symfony to load an `sfVarLogger` in
   your `factories.yml` file.  The Logger plugin will first check to see if an
   `sfVarLogger` has been added to the context before injecting its own.
 
-    # sf_apps_dir/frontend/config/factories.yml:
+    # sf_app_config_dir/factories.yml:
 
     test:
       logger:
