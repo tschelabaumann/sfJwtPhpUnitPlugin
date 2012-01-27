@@ -1567,26 +1567,17 @@ JPUP requires that your project have a separate uploads directory for testing so
   that test execution doesn't overwrite production files.
 
 Even if the code you are testing does not use file uploads explicitly, JPUP
-  still requires that you define a separate test upload directory, as the
-  `Test_Browser` class might automatically write to that directory during a
-  `post()` operation.
+  still requires a separate test upload directory, as the `Test_Browser` class
+  might automatically write to that directory during a `post()` operation.
 
-* Plus, it's one less thing to worry about when you start testing actions that do
+Plus, it's one less thing to worry about when you start testing actions that
   accept file uploads.
 
-To specify an uploads directory for JPUP, add the following line to the
-  settings.yml file for your application:
+By default, JPUP will define and create a test uploads directory for you at
+  runtime at `%sf_app_cache_dir%/uploads`.
 
-    # apps/frontend/config/settings.yml
-
-    test:
-      .settings
-        ... snip ...
-        # Add this line:
-        upload_dir:             %SF_TEST_CACHE_DIR%/uploads
-
-* You will also need to make sure that the test uploads directory exists and is
-  writable.
+If you wish to override this value, you can specify a different path in your
+  app's `settings.yml` file.
 
 ## Removing Uploaded Files
 JPUP will automatically remove all files in the test uploads directory before
