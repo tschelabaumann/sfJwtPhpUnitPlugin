@@ -253,24 +253,34 @@ abstract class BasePhpunitRunnerTask extends BasePhpunitTask
           );
         }
 
-        /* If $fullpath is the path to a file minus a '.php' or '.class.php'
-         *  extension, load the auto-corrected filepath.
+        /* If $fullpath is the path to a file minus an extension, load the
+         *  auto-corrected filepath.
          */
         else
         {
+          $pathinfo = pathinfo($fullpath);
           $basename =
-            dirname($fullpath) . DIRECTORY_SEPARATOR
-            . basename($fullpath, '.php');
+            $pathinfo['dirname'] . DIRECTORY_SEPARATOR . $pathinfo['filename'];
 
-          if( is_file($basename . '.php') )
+          $exts = array(
+            '.php',
+            '.class.php',
+            '.test.php'
+          );
+
+          $found = false;
+          foreach( $exts as $ext )
           {
-            $files[] = $basename . '.php';
+            if( is_file($basename . $ext) )
+            {
+              $files[] = $basename . $ext;
+
+              $found = true;
+              break;
+            }
           }
-          elseif( is_file($basename . '.class.php') )
-          {
-            $files[] = $basename . '.class.php';
-          }
-          else
+
+          if( ! $found )
           {
             $this->logSection(
               'phpunit',

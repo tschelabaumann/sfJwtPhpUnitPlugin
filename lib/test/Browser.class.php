@@ -255,9 +255,30 @@ class Test_Browser extends Test_ObjectWrapper
      */
     $context = $this->getContext();
 
-    /** @see http://trac.symfony-project.org/ticket/3889 */
-    /** @noinspection PhpUndefinedMethodInspection */
-    $context->getRequest()->setRelativeUrlRoot('');
+    /** @kludge Routing uses a prefix of './symfony' by default when in CLI
+     *    mode, and there is no easy way to override this.
+     *
+     * A simple setOption() method would be nice, but neither sfRouting nor
+     *  sfPatternRouting has that, so we have to settle for mocking an event
+     *  notification to fool the routing into thinking that it is re-parsing the
+     *  request parameters.
+     *
+     * @see sfRouting::fixGeneratedUrl()
+     * @see http://trac.symfony-project.org/ticket/3889
+     */
+    /** @var $request sfWebRequest */
+    $request = $context->getRequest();
+    $request->setRelativeUrlRoot('');
+
+    /** @see sfWebRequest::parseRequestParameters() */
+    $context->getEventDispatcher()->filter(
+      new sfEvent(
+        $request,
+        'request.filter_parameters',
+        $request->getRequestContext()
+      ),
+      array()
+    );
 
     /** @noinspection PhpUndefinedMethodInspection */
     return $context->getController()->genUrl($uri, false);
