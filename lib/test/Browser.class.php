@@ -266,19 +266,23 @@ class Test_Browser extends Test_ObjectWrapper
      * @see sfRouting::fixGeneratedUrl()
      * @see http://trac.symfony-project.org/ticket/3889
      */
-    /** @var $request sfWebRequest */
-    $request = $context->getRequest();
-    $request->setRelativeUrlRoot('');
+    $options = $context->getRouting()->getOptions();
+    if( $options['context']['prefix'] != '' )
+    {
+      /** @var $request sfWebRequest */
+      $request = $context->getRequest();
+      $request->setRelativeUrlRoot('');
 
-    /** @see sfWebRequest::parseRequestParameters() */
-    $context->getEventDispatcher()->filter(
-      new sfEvent(
-        $request,
-        'request.filter_parameters',
-        $request->getRequestContext()
-      ),
-      array()
-    );
+      /** @see sfWebRequest::parseRequestParameters() */
+      $context->getEventDispatcher()->filter(
+        new sfEvent(
+          $request,
+          'request.filter_parameters',
+          $request->getRequestContext()
+        ),
+        array()
+      );
+    }
 
     /** @noinspection PhpUndefinedMethodInspection */
     return $context->getController()->genUrl($uri, false);
