@@ -1,6 +1,14 @@
+# 1.0.11
+## Issues
+- Resolved [#16] Automatically set and create expected uploads directory before running tests.
+
+## Major Changes
+- `Test_Browser->genUrl()` now removes default path prefix more reliably.
+- Auto-detect test files whose filename ends with `.test.php`.
+
 # 1.0.10
 ## Issues
-- [#7] Provide full path to settings.yml file when misconfiguration is detected.
+- Resolved [#7] Provide full path to settings.yml file when misconfiguration is detected.
 
 ## Major Changes
 - Allow passing route names and parameter arrays to `Test_Browser->call()`.
@@ -29,7 +37,7 @@
   for a particular plugin.
 - [#3] Moved definition of `sf_fixture_dir` into `Test_Case` so that it can be
   modified more easily at runtime.
-- Resolved [#28]: Implemented Test_Case->loadProductionFixture() and added
+- Resolved [#28] Implemented Test_Case->loadProductionFixture() and added
   plugin-specific fixture loaders for good measure.
 
 ## Major Changes
@@ -66,7 +74,7 @@
 
 # 1.0.5
 ## Issues
-- Resolved [#17]: Make generating skeleton tests for inherited methods an
+- Resolved [#17] Make generating skeleton tests for inherited methods an
   option.
 
 ## Major Changes
@@ -84,8 +92,8 @@
 
 # 1.0.4
 ## Issues
-- Resolved [#19]: Need a changelog.
-- Resolved [#6]:  Remove MySQL dependency.
+- Resolved [#19] Need a changelog.
+- Resolved [#6]  Remove MySQL dependency.
 - [#3]:  Added --plugin option to runner tasks (generators still outstanding).
 
 ## Major Changes
