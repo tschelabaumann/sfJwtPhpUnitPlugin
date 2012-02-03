@@ -346,9 +346,9 @@ class Test_Browser extends Test_ObjectWrapper
     foreach( $params as $key => $val )
     {
       $stringified[$key] = (
-        is_array($val)
-          ? $this->_stringifyParameters($val)
-          : (string) $val
+        (is_scalar($val) or (is_object($val) and method_exists($val, '__toString')))
+          ? (string) $val
+          : $this->_stringifyParameters((array) $val)
       );
     }
 

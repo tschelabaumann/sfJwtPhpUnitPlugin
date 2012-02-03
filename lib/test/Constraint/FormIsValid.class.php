@@ -21,29 +21,29 @@
  * THE SOFTWARE.
  */
 
-/** An assertion constraint that checks a the Test_Browser's status code, with
- *    reporting of error codes on failure.
+/** An assertion constraint that checks whether an sfForm instance passes
+ *    validation.
+ *
+ * If a form fails validation, its error messages will be output with the
+ *  failure message to make it easier to diagnose test failures.
  *
  * @package sfJwtPhpUnitPlugin
  * @subpackage lib.test.constraint
  */
-class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
+class Test_Constraint_FormIsValid extends PHPUnit_Framework_Constraint
 {
-  const
-    MESSAGE = 'response has %d HTTP status code (got: %d %s)';
-
   protected
     $_expected;
 
   /** Init the class instance.
    *
-   * @param int $expected
+   * @param bool $expected
    */
   public function __construct( $expected )
   {
-    if( ! ctype_digit((string) $expected) )
+    if( ! is_bool($expected) )
     {
-      throw PHPUnit_Util_InvalidArgumentHelper::factory(0, 'int');
+      throw PHPUnit_Util_InvalidArgumentHelper::factory(0, 'bool');
     }
 
     $this->_expected = $expected;
@@ -51,18 +51,18 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
 
   /** Checks the status code.
    *
-   * @param Test_Browser $browser
+   * @param sfForm $form
    *
    * @return bool
    */
-  protected function matches( $browser )
+  protected function matches( $form )
   {
-    if( ! ($browser instanceof Test_Browser) )
+    if( ! ($form instanceof sfForm) )
     {
       throw PHPUnit_Util_InvalidArgumentHelper::factory(0, 'Test_Browser');
     }
 
-    return ($browser->getResponse()->getStatusCode() == $this->_expected);
+    return ($form->isValid() == $this->_expected);
   }
 
   /** Returns a generic string representation of the object.
@@ -71,30 +71,49 @@ class Test_Constraint_StatusCodeEquals extends PHPUnit_Framework_Constraint
    */
   public function toString(  )
   {
-    return sprintf('is equal to <int:%d>', $this->_expected);
+    return sprintf('is equal to <bool:%d>', $this->_expected);
   }
 
   /** Appends relevant error message information to a failed status check.
    *
-   * @param Test_Browser  $browser
+   * @param sfForm $form
    *
    * @return string
    */
-  protected function failureDescription( $browser )
+  protected function failureDescription( $form )
   {
-    $code = $browser->getResponse()->getStatusCode();
+    return sprintf(
+      '%s is%s valid',
+        get_class($form),
+        ($this->_expected ? '' : ' not')
+    );
+  }
 
-    /* See if there's an error we can report. */
-    if( ! $error = (string) $browser->getError() )
+  /** Return additional failure description where needed
+   *
+   * The function can be overritten to provide additional failure information
+   *  like a diff
+   *
+   * @param  sfForm $form Evaluated value or object.
+   * @return string
+   */
+  protected function additionalFailureDescription( $form )
+  {
+    /* If the form has errors, add them to the message, since that's what we're
+     *  going to be interested in when the assertion fails).
+     *
+     * Note that we only have to check for this if we were expecting the form to
+     *  be valid (give it a second; it'll come to you).
+     */
+    if( $this->_expected and ($errors = $form->getErrorSchema()->getErrors()) )
     {
-      $error = Zend_Http_Response::responseCodeAsText($code);
+      return sprintf(
+        'Form has errors:%s%s',
+          PHP_EOL,
+          print_r(array_map('strval', $errors), true)
+      );
     }
 
-    return sprintf(
-      self::MESSAGE,
-        $this->_expected,
-        $code,
-        $error
-    );
+    return '';
   }
 }
