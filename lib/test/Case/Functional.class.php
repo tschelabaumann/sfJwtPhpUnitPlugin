@@ -54,7 +54,8 @@ abstract class Test_Case_Functional extends Test_Case
     $this->_browser = new Test_Browser();
   }
 
-  /** Shortcut for assertEqual($this->_browser->getStatusCode(), $code).
+  /** Asserts that the response from the most recent request sent the correct
+   *    HTTP status code.
    *
    * @param int    $code
    * @param string $message   Custom failure message (optional).
@@ -66,6 +67,38 @@ abstract class Test_Case_Functional extends Test_Case
     self::assertThat(
       $this->_browser,
       new Test_Constraint_StatusCodeEquals($code),
+      $message
+    );
+  }
+
+  /** Asserts that a form object is valid.
+   *
+   * @param sfForm  $form
+   * @param string  $message  Custom failure message (optional).
+   *
+   * @return void
+   */
+  protected function assertFormIsValid( sfForm $form, $message = '' )
+  {
+    self::assertThat(
+      $form,
+      new Test_Constraint_FormIsValid(true),
+      $message
+    );
+  }
+
+  /** Asserts that a form object is not valid.
+   *
+   * @param sfForm  $form
+   * @param string  $message  Custom failure message (optional).
+   *
+   * @return void
+   */
+  protected function assertFormIsNotValid( sfForm $form, $message = '' )
+  {
+    self::assertThat(
+      $form,
+      new Test_Constraint_FormIsValid(false),
       $message
     );
   }
