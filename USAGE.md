@@ -1297,7 +1297,60 @@ Sometimes, it is necessary to load production data fixtures (located in
   wary of infinite loops!).  See the API documentation for more information.
 
 ### Fixture Types
-JPUP supports loading two different fixture types:  YAML and PHP.
+JPUP supports loading three different fixture types:  SQL, YAML, PHP.
+
+#### SQL
+A SQL data fixture is simply a SQL script.  When loading a SQL data fixture,
+  JPUP loads the contents of the file and passes it to the ORM's `exec()`
+  method.
+
+Here is an example of a SQL data fixture in action:
+
+    # sf_test_dir/unit/MyTest.php
+
+    <?php
+    class MyTest extends Test_Case_Unit
+    {
+      public function testFindCategoryByName(  )
+      {
+        $this->loadFixture('category.sql');
+
+        $category = My::category();
+
+        $this->assertInstanceOf('Category', $category,
+          'Expected Category record to be loaded.'
+        );
+
+        $this->assertEquals(My::DEFAULT_CATEGORY, $category->name,
+          'Expected loaded Category to have correct name.'
+        );
+      }
+    }
+
+    # sf_test_dir/fixtures/category.sql
+
+    INSERT INTO `category`
+      SET `name` = 'DEFAULT';
+
+##### Pros
+- As the simplest data fixture that JPUP supports, SQL fixtures load the most
+  quickly and are easy to understand, even by developers who are unfamiliar with
+  JPUP or even the ORM.
+- Fixture data can be loaded easily into a test database outside the context of
+  running a test, making it easier to load fixtures for spikes and other
+  exploratory operations.
+
+##### Cons
+- SQL data fixtures do not leverage any ORM functionality such as
+  behaviors, listeners, validators, events, etc.  It is quite possible to
+  create situations using SQL data fixtures that would never occur under normal
+  program operation (some might argue that this is a feature).
+- SQL data fixtures also do not leverage PHP constants and other "magic values".
+  Care should be taken when changing these values to ensure that the values are
+  changed both in the application code and any applicable test fixtures.
+- For database-agnostic applications, care should be taken to ensure that the
+  syntax in SQL data fixtures are also database-agnostic to prevent false
+  failures when tests are run with incompatible databases.
 
 #### YAML
 JPUP can load YAML fixture files similarly to the way Symfony's
@@ -1333,20 +1386,29 @@ Here's what the YAML fixture looks like:
         password: 1337
         active:   0
 
-As with other Symfony YAML files, you can include PHP code and Symfony config
-  values:
+As with other Symfony YAML files, you can include PHP code, although Symfony
+  configuration values are **not** currently expanded:
 
     # sf_test_dir/fixtures/users.yml
 
     User:
       admin:
-        username: %APP_DEFAULT_ADMIN_USERNAME%
-        password: <?php echo sha1('saltpasswordsalt'); ?>
-        active:   1
 
-If you need to execute a large amount of PHP code, or if you need to set up
-  inter-fixture relationships, you might find it more effective to use a PHP
-  fixture file instead.
+        # This will not work as expected; username will be literally
+        #   "%APP_DEFAULT_ADMIN_USERNAME%":
+        username: %APP_DEFAULT_ADMIN_USERNAME%
+
+        # This will work as expected; password will be
+        #   "0698f86248c9592589005ba8b7f1e2e9383964cf":
+        password: <?php echo sha1('saltpasswordsalt'); ?>
+
+##### Pros
+- Symfony also uses the YAML format for its production data fixtures, so the
+  syntax will be familiar even to developers that are unfamiliar with JPUP.
+
+##### Cons
+- The YAML format is slower to parse than raw SQL fixtures, and it much is less
+  powerful than PHP fixtures.
 
 #### PHP
 Load a PHP fixture file identically to the way you would load a YAML fixture
@@ -1502,6 +1564,21 @@ As with shared fixture variables, constants defined in fixture files are not
 
 To avoid this problem, it is recommended that you adopt a naming convention
  (such as prepending "TEST_" to all test constant names).
+
+##### Pros
+- PHP fixtures are by far the most sophisticated and powerful of the data
+  fixture formats supported by JPUP, offering a number of features that simply
+  aren't possible to accomplish in the other formats.
+- Errors in PHP fixtures are accompanied by full stack traces including file and
+  line numbers, making it much easier to identify problems with PHP fixtures
+  than the other formats.
+
+##### Cons
+- Due to their complexity and feature set, PHP fixtures are the most prone to
+  logic errors, false positives/failures, etc.
+- Although this is not necessarily the case, PHP fixtures tend to be the slowest
+  to load of all the fixture formats supported by JPUP, due to the amount of
+  overhead incurred (both from the ORM and JPUP).
 
 ## Flushing the Database Manually
 You can flush the database manually in your test by calling
