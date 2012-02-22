@@ -1,3 +1,16 @@
+# Welcome symfony-project.org visitors!
+
+Please note that the version of JPUP hosted at http://symfony-project.org/plugins/sfJwtPhpUnitPlugin is
+  out-of-date ([1.0.3](https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/1.0.3/README.md) even though it
+  says 1.0.7 on the plugin page).
+
+Unfortunately, the developer who maintains this porject no longer has access to the symfony-project.org
+  account that owns the plugin page, as he no longer works at JWT, so the version on symfony-project.org
+  will likely remain obsolete for the foreseeable future.
+
+If you haven't already, it is strongly recommended that you use git submodules to manage the JPUP
+  installation for your projects instead of Symfony's plugin manager.
+
 # 1.0.10 Update
 
 Please note that 1.0.10 introduces a change that could break existing functional
