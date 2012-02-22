@@ -4,7 +4,7 @@ Please note that the version of JPUP hosted at http://symfony-project.org/plugin
   out-of-date ([1.0.3](https://github.com/JWT-OSS/sfJwtPhpUnitPlugin/blob/1.0.3/README.md) even though it
   says 1.0.7 on the plugin page).
 
-Unfortunately, the developer who maintains this porject no longer has access to the symfony-project.org
+Unfortunately, the developer who maintains this project no longer has access to the symfony-project.org
   account that owns the plugin page, as he no longer works at JWT, so the version on symfony-project.org
   will likely remain obsolete for the foreseeable future.
 
