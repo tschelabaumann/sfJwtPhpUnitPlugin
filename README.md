@@ -8,7 +8,7 @@ Unfortunately, the developer who maintains this project no longer has access to 
   account that owns the plugin page, as he no longer works at JWT, so the version on symfony-project.org
   will likely remain obsolete for the foreseeable future.
 
-If you haven't already, it is strongly recommended that you use git submodules to manage the JPUP
+If you aren't already, it is strongly recommended that you use git submodules to manage the JPUP
   installation for your projects instead of Symfony's plugin manager.
 
 # 1.0.10 Update
