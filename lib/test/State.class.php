@@ -35,16 +35,19 @@ class Test_State
     $_dbFlushTree,
     $_configs;
 
-  /** @var ProjectConfiguration */
+  /** @var sfProjectConfiguration */
   protected $_configuration;
+  /** @var Doctrine_Connection */
+  protected $_connection;
 
   /** Inits the class instance.
    *
-   * @param $configuration ProjectConfiguration
+   * @param $configuration sfProjectConfiguration
    */
-  public function __construct( ProjectConfiguration $configuration )
+  public function __construct( sfProjectConfiguration $configuration )
   {
     $this->_configuration = $configuration;
+    $this->_connection    = $this->getDatabaseConnection();
   }
 
   /** Flush the database and reload base fixtures.
@@ -62,7 +65,7 @@ class Test_State
    */
   public function flushDatabase( $rebuild = false )
   {
-    if( $db = $this->getDatabaseConnection() )
+    if( $this->_connection )
     {
       /* The first time we run a test case, drop and rebuild the database.
        *
@@ -73,12 +76,12 @@ class Test_State
         /* Don't try to drop the database unless it exists. */
         $name = $this->getDatabaseName();
         /** @noinspection PhpUndefinedFieldInspection */
-        if( $name and $db->import->databaseExists($name) )
+        if( $name and $this->_connection->import->databaseExists($name) )
         {
-          $db->dropDatabase();
+          $this->_connection->dropDatabase();
         }
 
-        $db->createDatabase();
+        $this->_connection->createDatabase();
 
         Doctrine_Core::loadModels(
           sfConfig::get('sf_lib_dir').'/model/doctrine',
@@ -94,7 +97,7 @@ class Test_State
         if( ! isset(self::$_dbFlushTree) )
         {
           /** @noinspection PhpUndefinedFieldInspection */
-          $models = $db->unitOfWork->buildFlushTree(
+          $models = $this->_connection->unitOfWork->buildFlushTree(
             Doctrine_Core::getLoadedModels()
           );
           self::$_dbFlushTree = array_reverse($models);
@@ -170,7 +173,7 @@ class Test_State
       }
       catch( Doctrine_Connection_Exception $e )
       {
-        new sfDatabaseManager(sfContext::getInstance()->getConfiguration());
+        new sfDatabaseManager($this->_configuration);
         return Doctrine_Manager::connection();
       }
     }
@@ -184,19 +187,17 @@ class Test_State
    */
   protected function getDatabaseName(  )
   {
-    $db = $this->getDatabaseConnection();
-
     /* Why oh why does Doctrine_Connection not do this for us? */
-    if( ! $dsn = $db->getOption('dsn') )
+    if( ! $dsn = $this->_connection->getOption('dsn') )
     {
       throw new RuntimeException(sprintf(
         'Doctrine connection "%s" does not have a DSN!',
-          $db->getName()
+          $this->_connection->getName()
       ));
     }
 
     /** @noinspection PhpParamsInspection */
-    $info = $db->getManager()->parsePdoDsn($dsn);
+    $info = $this->_connection->getManager()->parsePdoDsn($dsn);
     return (isset($info['dbname']) ? $info['dbname'] : null);
   }
 }

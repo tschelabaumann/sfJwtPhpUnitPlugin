@@ -143,9 +143,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     $this->_assertTestDatabaseConnection();
     $this->_assertTestUploadsDir();
 
-    $this->_fixtureLoader = new Test_FixtureLoader();
-    $this->_state         =
-      new Test_State($this->getApplicationConfiguration());
+    $configuration        = $this->getApplicationConfiguration();
+
+    $this->_fixtureLoader = new Test_FixtureLoader($configuration);
+    $this->_state         = new Test_State($configuration);
 
     /* Set custom sfConfig values here. */
     sfConfig::add(array(
