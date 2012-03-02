@@ -257,7 +257,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    * Note that the first time flushDatabase() is called (per execution), the
    *  database will be rebuilt regardless of $rebuild.
    *
-   * @return Test_Case $this
+   * @return static
    */
   protected function flushDatabase( $rebuild = false )
   {
@@ -327,7 +327,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
   /** Removes anything in the uploads directory.
    *
-   * @return Test_Case $this
+   * @return static
    */
   public function flushUploads(  )
   {
@@ -344,7 +344,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
   /** Restores all sfConfig values to their state before the current test was
    *   run.
    *
-   * @return Test_Case $this
+   * @return static
    */
   public function flushConfigs(  )
   {
