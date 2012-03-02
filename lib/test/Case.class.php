@@ -43,12 +43,9 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     REQUIRED_PHPUNIT_VERSION = '3.6.0';
 
   static private
-    $_dbRebuilt,
     $_dbNameCheck,
-    $_dbFlushTree,
     $_uploadsDirCheck,
-    $_defaultApplication,
-    $_configs;
+    $_defaultApplication;
 
   /** @var sfCommandApplication */
   static private $_controller;
@@ -66,8 +63,12 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
      */
     $_plugin;
 
+  /** @var sfApplicationConfiguration */
+  private $_configuration;
   /** @var Test_FixtureLoader */
   private $_fixtureLoader;
+  /** @var Test_State */
+  private $_state;
 
   /** Accessor for the default application name.
    *
@@ -139,11 +140,23 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
   {
     $this->_initContext();
 
-    $this->_fixtureLoader = new Test_FixtureLoader();
+    $this->_assertTestDatabaseConnection();
+    $this->_assertTestUploadsDir();
 
-    $this->flushDatabase();
-    $this->flushUploads();
-    $this->flushConfigs();
+    $this->_fixtureLoader = new Test_FixtureLoader();
+    $this->_state         =
+      new Test_State($this->getApplicationConfiguration());
+
+    /* Set custom sfConfig values here. */
+    sfConfig::add(array(
+      'sf_fixture_dir'    =>
+        $this->_fixtureLoader->getFixtureDir(false, $this->_plugin)
+    ));
+
+    $this->_state
+      ->flushDatabase()
+      ->flushUploads()
+      ->flushConfigs();
 
     $this->_init();
     $this->_setUp();
@@ -248,164 +261,6 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     return $this->_fixtureLoader->loadFixture($fixture, true, $plugin, $force);
   }
 
-  /** Flush the database and reload base fixtures.
-   *
-   * @param bool $rebuild
-   *  true:   The database will be dropped and rebuilt.
-   *  false:  The method will try just to flush the data.
-   *
-   * Note that the first time flushDatabase() is called (per execution), the
-   *  database will be rebuilt regardless of $rebuild.
-   *
-   * @return static
-   */
-  protected function flushDatabase( $rebuild = false )
-  {
-    if( sfConfig::get('sf_use_database') )
-    {
-      $this->_assertTestDatabaseConnection();
-
-      $db = $this->getDatabaseConnection();
-
-      /* The first time we run a test case, drop and rebuild the database.
-       *
-       * After that, we can simply truncate all tables for speed.
-       */
-      if( empty(self::$_dbRebuilt) or $rebuild )
-      {
-        /* Don't try to drop the database unless it exists. */
-        $name = $this->getDatabaseName();
-        /** @noinspection PhpUndefinedFieldInspection */
-        if( $name and $db->import->databaseExists($name) )
-        {
-          $db->dropDatabase();
-        }
-
-        $db->createDatabase();
-
-        Doctrine_Core::loadModels(
-          sfConfig::get('sf_lib_dir').'/model/doctrine',
-          Doctrine_Core::MODEL_LOADING_CONSERVATIVE
-        );
-        Doctrine_Core::createTablesFromArray(Doctrine_Core::getLoadedModels());
-
-        self::$_dbRebuilt = true;
-      }
-      else
-      {
-        /* Determine the order we need to load models. */
-        if( ! isset(self::$_dbFlushTree) )
-        {
-          /** @noinspection PhpUndefinedFieldInspection */
-          $models = $db->unitOfWork->buildFlushTree(
-            Doctrine_Core::getLoadedModels()
-          );
-          self::$_dbFlushTree = array_reverse($models);
-        }
-
-        /* Delete records, paying special attention to SoftDelete. */
-        foreach( self::$_dbFlushTree as $model )
-        {
-          $table = Doctrine_Core::getTable($model);
-
-          if( $table->hasTemplate('SoftDelete') )
-          {
-            /** @var $record Doctrine_Template_SoftDelete */
-            foreach( $table->createQuery()->execute() as $record )
-            {
-              $record->hardDelete();
-            }
-          }
-
-          $table->createQuery()->delete()->execute();
-        }
-      }
-    }
-
-    return $this;
-  }
-
-  /** Removes anything in the uploads directory.
-   *
-   * @return static
-   */
-  public function flushUploads(  )
-  {
-    $this->_assertTestUploadsDir();
-
-    $Filesystem = new sfFilesystem();
-    $Filesystem->remove(
-      sfFinder::type('any')->in(sfConfig::get('sf_upload_dir'))
-    );
-
-    return $this;
-  }
-
-  /** Restores all sfConfig values to their state before the current test was
-   *   run.
-   *
-   * @return static
-   */
-  public function flushConfigs(  )
-  {
-    if( isset(self::$_configs) )
-    {
-      sfConfig::clear();
-      sfConfig::add(self::$_configs);
-    }
-    else
-    {
-      /* Set custom sfConfig values here. */
-      sfConfig::add(array(
-        'sf_fixture_dir'    =>
-          $this->_fixtureLoader->getFixtureDir(false, $this->_plugin)
-      ));
-
-      self::$_configs = sfConfig::getAll();
-    }
-
-    return $this;
-  }
-
-  /** Gets the Doctrine connection, initializing it if necessary.
-   *
-   * @return Doctrine_Connection
-   */
-  protected function getDatabaseConnection(  )
-  {
-    try
-    {
-      return Doctrine_Manager::connection();
-    }
-    catch( Doctrine_Connection_Exception $e )
-    {
-      new sfDatabaseManager(sfContext::getInstance()->getConfiguration());
-      return Doctrine_Manager::connection();
-    }
-  }
-
-  /** Returns the name of the Doctrine database.
-   *
-   * @return string
-   */
-  protected function getDatabaseName(  )
-  {
-    $db = $this->getDatabaseConnection();
-
-    /* Why oh why does Doctrine_Connection not do this for us? */
-    if( ! $dsn = $db->getOption('dsn') )
-    {
-      throw new RuntimeException(sprintf(
-        'Doctrine connection "%s" does not have a DSN!',
-          $db->getName()
-      ));
-    }
-
-    /** @noinspection PhpParamsInspection */
-    $info = $db->getManager()->parsePdoDsn($dsn);
-    return (isset($info['dbname']) ? $info['dbname'] : null);
-  }
-
   /** Runs a Symfony task.
    *
    * @param $name string
@@ -476,16 +331,28 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
 
     if( ! sfContext::hasInstance() )
     {
-      sfContext::createInstance(
-        ProjectConfiguration::getApplicationConfiguration(
-          $this->_application,
-          'test',
-          true
-        )
-      );
+      sfContext::createInstance($this->getApplicationConfiguration());
     }
 
     sfContext::switchTo($this->_application);
+  }
+
+  /** Initialize the application configuration.
+   *
+   * @return sfApplicationConfiguration
+   */
+  protected function getApplicationConfiguration(  )
+  {
+    if( ! isset($this->_configuration) )
+    {
+      $this->_configuration = ProjectConfiguration::getApplicationConfiguration(
+        $this->_application,
+        'test',
+        true
+      );
+    }
+
+    return $this->_configuration;
   }
 
   /** Check to make sure we are using the "test" environment.
@@ -524,7 +391,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    */
   private function _assertTestDatabaseConnection( $force = false )
   {
-    if( ! self::$_dbNameCheck or $force )
+    if(
+          ((! self::$_dbNameCheck) or $force)
+      and $db = $this->getDatabaseConnection()
+    )
     {
       $this->_assertTestEnvironment();
 
@@ -552,13 +422,35 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
       }
 
       /* Check to see that the active connection is using the correct DSN. */
-      if( $this->getDatabaseConnection()->getOption('dsn') != $test )
+      if( $db->getOption('dsn') != $test )
       {
         self::_halt('Doctrine connection is not using test DSN!');
       }
 
       self::$_dbNameCheck = true;
     }
+  }
+
+  /** Gets the Doctrine connection, initializing it if necessary.
+   *
+   * @return Doctrine_Connection
+   */
+  protected function getDatabaseConnection(  )
+  {
+    if( sfConfig::get('sf_use_database') )
+    {
+      try
+      {
+        return Doctrine_Manager::connection();
+      }
+      catch( Doctrine_Connection_Exception $e )
+      {
+        new sfDatabaseManager(sfContext::getInstance()->getConfiguration());
+        return Doctrine_Manager::connection();
+      }
+    }
+
+    return null;
   }
 
   /** Validates the uploads directory to ensure we're not going to inadvertently
