@@ -29,6 +29,7 @@
  * @subpackage lib.task.phpunit.base
  *
  * @property sfCommandApplication $commandApplication
+ * @property sfApplicationConfiguration $configuration
  */
 abstract class BasePhpunitTask extends sfBaseTask
 {
@@ -78,6 +79,18 @@ abstract class BasePhpunitTask extends sfBaseTask
     );
 
     return ($strict ? array_intersect_key($res, $defaults) : $res);
+  }
+
+  /** Returns a plugin's configuration if the plugin is enabled.
+   *
+   * @param $plugin string
+   *
+   * @return sfPluginConfiguration
+   * @throws InvalidArgumentException If the plugin is not enabled.
+   */
+  protected function _getPluginConfiguration( $plugin )
+  {
+    return $this->configuration->getPluginConfiguration($plugin);
   }
 
   /** Used as a callback to array_filter() _consolidateInput() for PHP < 5.3.

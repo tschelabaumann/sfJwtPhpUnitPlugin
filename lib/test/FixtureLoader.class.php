@@ -32,17 +32,25 @@ class Test_FixtureLoader
 {
   protected
     $_fixturesLoaded,
-    $_varHolder,
     $_depth;
 
+  /** @var sfParameterHolder */
+  protected $_varHolder;
+  /** @var sfProjectConfiguration */
+  protected $_configuration;
+
   /** Init the class instance.
+   *
+   * @param $configuration sfProjectConfiguration
    */
-  public function __construct(  )
+  public function __construct( sfProjectConfiguration $configuration )
   {
     $this->_depth = 0;
 
     $this->flushFixtures();
     $this->_varHolder = new sfParameterHolder();
+
+    $this->_configuration = $configuration;
   }
 
   /** Loads a fixture file.
@@ -160,10 +168,7 @@ class Test_FixtureLoader
   {
     if( $plugin )
     {
-      $config =
-      sfContext::getInstance()
-      ->getConfiguration()
-      ->getPluginConfiguration($plugin);
+      $config = $this->_configuration->getPluginConfiguration($plugin);
 
       return sprintf(
         '%s/%s/fixtures/',
