@@ -118,6 +118,7 @@ class Test_State
           }
 
           $table->createQuery()->delete()->execute();
+          $table->clear();
         }
       }
     }
