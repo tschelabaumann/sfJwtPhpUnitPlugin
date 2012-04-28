@@ -23,7 +23,7 @@ Please note that 1.0.10 introduces a change that could break existing functional
     route.  If you are calling a route with required parameters, they *must* be
     included in `$uri`, or else an `InvalidArgumentException` will be thrown.
 
-  See USAGE.md ("Query String Parameters") for more information.
+  See [USAGE.md](./USAGE.md) ("Query String Parameters") for more information.
 
 # sfJwtPhpUnitPlugin
 ## About
@@ -67,10 +67,10 @@ JPUP requires PHPUnit 3.6.6.
 JPUP is intended to be compatible with PHP 5.2 and greater.
 
 ## Installation
-See INSTALL.md.
+See [INSTALL.md](./INSTALL.md).
 
 ## Usage
-See USAGE.md.
+See [USAGE.md](./USAGE.md).
 
 ## Contributing
 We welcome any and all suggestions, requests, (constructive) criticism, code,
