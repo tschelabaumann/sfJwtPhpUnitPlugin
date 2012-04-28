@@ -98,7 +98,7 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param string,... $plugin_name
    *
-   * @return $this
+   * @return static
    */
   public function usePlugin( $plugin_name/*, ... */ )
   {
@@ -131,7 +131,7 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param string|sfGuardUser $user
    *
-   * @return $this
+   * @return static
    */
   public function signin( $user )
   {
@@ -179,7 +179,7 @@ class Test_Browser extends Test_ObjectWrapper
    * @param array  $parameters  The Request parameters
    * @param bool   $changeStack  Change the browser history stack?
    *
-   * @return $this
+   * @return static
    */
   public function get( $uri, $parameters = array(), $changeStack = true )
   {
@@ -192,7 +192,7 @@ class Test_Browser extends Test_ObjectWrapper
    * @param array  $parameters  The Request parameters
    * @param bool   $changeStack  Change the browser history stack?
    *
-   * @return $this
+   * @return static
    */
   public function post( $uri, $parameters = array(), $changeStack = true )
   {
@@ -206,7 +206,7 @@ class Test_Browser extends Test_ObjectWrapper
    * @param array  $parameters   The Request parameters
    * @param bool   $changeStack  Change the browser history stack?
    *
-   * @return $this
+   * @return static
    */
   public function call( $uri, $method = 'get', $parameters = array(), $changeStack = true )
   {
@@ -291,7 +291,7 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param Test_Browser_Listener $listener
    *
-   * @return $this
+   * @return static
    */
   public function addListener( Test_Browser_Listener $listener )
   {
