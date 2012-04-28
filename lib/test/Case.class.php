@@ -40,7 +40,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     DEFAULT_APPLICATION = 'frontend',
     DEFAULT_ENVIRONMENT = 'test',
 
-    REQUIRED_PHPUNIT_VERSION = '3.6.0';
+    REQUIRED_PHPUNIT_VERSION = '3.6.6';
 
   static private
     $_dbNameCheck,
@@ -86,6 +86,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    *
    * @param string $application
    *
+   * @throws InvalidArgumentException If $application is empty.
    * @return string old value.
    */
   static public function setDefaultApplicationName( $application )
@@ -268,6 +269,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    * @param $args string[]
    * @param $opts string[]
    *
+   * @throws RuntimeException         If the task runner is not available (this
+   *  represents an internal error with JPUP and therefore should never, ever
+   *  happen :P).
+   * @throws InvalidArgumentException If no such task exists.
    * @return int Returns the status code from the task (usually 0).
    *
    * Note that this method intentionally does *not* consume exceptions generated
@@ -381,6 +386,14 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         $this->_getSettingsFilename()
       );
     }
+
+    /* In same places, Symfony checks for sf_test rather than sf_environment.
+     *  Since we've just finished verifying that we're in the test environment,
+     *  we can also assume that test mode is on.
+     *
+     * Even if we have to set it ourselves.
+     */
+    sfConfig::set('sf_test', true);
   }
 
   /** Verifies that we are not connected to the production database.
@@ -540,7 +553,10 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
    *
    * @return void
    */
-  static protected function _halt( $message /*, $value,... */ )
+  static protected function _halt(
+    /** @noinspection PhpUnusedParameterInspection */
+    $message /*, $value,... */
+  )
   {
     echo
       self::ERR_HEADER, PHP_EOL,
