@@ -386,6 +386,14 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
         $this->_getSettingsFilename()
       );
     }
+
+    /* In same places, Symfony checks for sf_test rather than sf_environment.
+     *  Since we've just finished verifying that we're in the test environment,
+     *  we can also assume that test mode is on.
+     *
+     * Even if we have to set it ourselves.
+     */
+    sfConfig::set('sf_test', true);
   }
 
   /** Verifies that we are not connected to the production database.
