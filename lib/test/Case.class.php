@@ -40,7 +40,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     DEFAULT_APPLICATION = 'frontend',
     DEFAULT_ENVIRONMENT = 'test',
 
-    REQUIRED_PHPUNIT_VERSION = '3.6.0';
+    REQUIRED_PHPUNIT_VERSION = '3.6.6';
 
   static private
     $_dbNameCheck,
