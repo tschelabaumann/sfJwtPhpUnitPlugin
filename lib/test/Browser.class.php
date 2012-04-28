@@ -31,7 +31,6 @@
  * @package jwt
  * @subpackage lib.test
  *
- * @method sfContext        getContext(boolean $forceReload = false)
  * @method void             addListener(string $name, callback $listener)
  * @method sfUser           getUser()
  * @method sfBrowser        setHttpHeader(string $header, string $value)
@@ -100,7 +99,10 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @return static
    */
-  public function usePlugin( $plugin_name/*, ... */ )
+  public function usePlugin(
+    /** @noinspection PhpUnusedParameterInspection */
+    $plugin_name /*, ... */
+  )
   {
     foreach( func_get_args() as $name )
     {
@@ -131,6 +133,9 @@ class Test_Browser extends Test_ObjectWrapper
    *
    * @param string|sfGuardUser $user
    *
+   * @throws LogicException           If sfDoctrineGuardPlugin is not enabled.
+   * @throws InvalidArgumentException If $user cannot be resolved to an
+   *  sfGuardUser.
    * @return static
    */
   public function signin( $user )
@@ -305,6 +310,31 @@ class Test_Browser extends Test_ObjectWrapper
     }
 
     return $this;
+  }
+
+  /** Returns the current application context.
+   *
+   * @param bool $forceReload Whether to ignore existing context instance.
+   *
+   * @return sfContext
+   */
+  public function getContext( $forceReload = false )
+  {
+    /** @noinspection PhpUndefinedMethodInspection */
+    $context = $this->getEncapsulatedObject()->getContext($forceReload);
+
+    /** If an error occurs while initializing the context object, it will try
+     *    to dump a stack trace.
+     *
+     * @see sfContext::initialize()
+     */
+    if( $e = $this->getCurrentException() )
+    {
+      ob_end_clean();
+      throw $e;
+    }
+
+    return $context;
   }
 
   /** Handles an attempt to call a non-existent method.
