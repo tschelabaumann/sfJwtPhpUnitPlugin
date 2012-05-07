@@ -68,7 +68,7 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
      * Set to true in _setUp() to *always* rebuild the database before each test
      *  in the test case.
      */
-    $_rebuildDB = false;
+    $_alwaysRebuildDB = false;
 
   /** @var sfApplicationConfiguration */
   private $_configuration;
@@ -163,15 +163,9 @@ abstract class Test_Case extends PHPUnit_Framework_TestCase
     ));
 
     $this->_state
-      ->flushDatabase($this->_rebuildDB)
+      ->flushDatabase($this->_alwaysRebuildDB)
       ->flushUploads()
       ->flushConfigs();
-
-    /* Reset $_rebuildDB.  Note that we do this before calling _setUp(), so it
-     *  is still possible to force a DB rebuild before every test in the test
-     *  case.
-     */
-    $this->_rebuildDB = false;
 
     $this->_init();
     $this->_setUp();

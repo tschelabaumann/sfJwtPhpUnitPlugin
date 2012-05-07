@@ -1638,43 +1638,18 @@ After generating the export files, we flush the database and load a new
 By default, JPUP does **not** rebuild the database between tests; it only
   flushes the data.
 
-If you are testing a script that modifies the structure of
-  the database, it is recommended that you set `$this->_rebuildDB = true` in
-  your test:
-
-    # sf_test_dir/unit/lib/model/doctrine/ModularUserTable.class.php
-
-    <?php
-    class ModularUserTableTest extends Test_Case_Unit
-    {
-      ...
-
-      public function testAddProfileColumn(  )
-      {
-        /* This test modifies the DB structure.  Rebuild the database before the
-         *  next test runs.
-         */
-        $this->_rebuildDB = true;
-
-        ...
-      }
-    }
-
-If you need to rebuild the database before *every* test in your test case, add
-  the code to your test case's `_setUp()` method instead:
+If you are testing a script that modifies the structure of the database, it is
+  recommended that you set the `$_alwaysRebuildDB` property of your test case
+  to `true` so that the database will be destroyed and rebuilt before *every*
+  test in the test case:
 
     # sf_test_dir/unit/lib/db/DBDestroyer.class.php
 
     <?php
     class DBDestroyerTest extends Test_Case_Unit
     {
-      protected function _setUp(  )
-      {
-        /* DBDestroyer does destructive things to the database structure;
-         *  rebuild the database before *every* test.
-         */
-        $this->_rebuildDB = true;
-      }
+      protected
+        $_alwaysRebuildDB = true;
 
       ...
     }
