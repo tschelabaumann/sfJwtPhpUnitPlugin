@@ -135,6 +135,11 @@ class Test_Database_Driver
         }
 
         $this->_doPostFlush();
+
+        /** Clear all Doctrine table repositories to prevent memory leaks
+         *    between tests.
+         */
+        $this->_connection->clear();
       }
     }
 
