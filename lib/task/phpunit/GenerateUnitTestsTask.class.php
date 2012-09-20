@@ -159,6 +159,9 @@ END;
     {
       $root = $this->_getBaseDir();
 
+      // Normalize the path seperator (prevents exception on windows)
+      $root = str_replace('\\', '/', $root);
+
       if( substr($file, 0, strlen($root)) == $root )
       {
         return substr($file, strlen($root));
